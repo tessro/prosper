@@ -94,14 +94,14 @@ function App() {
   useEffect(() => {
     const url = new URL(window.location.href);
     url.pathname = `/production-chains/${ticker}/${quantity}`;
-    if (Object.keys(selectedRecipes).length > 0) {
+    if (Object.keys(userSelectedRecipes).length > 0) {
       url.searchParams.set(
         'selectedRecipes',
-        JSONCrush.crush(JSON.stringify(selectedRecipes))
+        JSONCrush.crush(JSON.stringify(userSelectedRecipes))
       );
     }
     window.history.pushState({}, '', url);
-  }, [ticker, quantity, selectedRecipes]);
+  }, [ticker, quantity, userSelectedRecipes]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setUserSelectedRecipes({
