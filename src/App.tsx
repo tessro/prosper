@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import ReactFlow, {
-  addEdge,
   FitViewOptions,
   applyNodeChanges,
   applyEdgeChanges,
@@ -8,7 +7,6 @@ import ReactFlow, {
   Edge,
   NodeChange,
   EdgeChange,
-  Connection,
 } from 'react-flow-renderer';
 import './App.css';
 import { loadRecipes } from './fio';
@@ -47,11 +45,6 @@ function Flow(props: FlowProps) {
       setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges]
   );
-  const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
-  );
-
   return (
     <ReactFlow
       nodes={nodes}
@@ -59,7 +52,7 @@ function Flow(props: FlowProps) {
       nodeTypes={nodeTypes}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
+      nodesConnectable={false}
       fitView
       fitViewOptions={fitViewOptions}
       snapToGrid
