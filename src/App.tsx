@@ -61,7 +61,7 @@ function App() {
     GL: '1xSIO=>10xGL',
     RG: '10xGL 15xPG=>10xRG',
     SI: '3xSIO 1xAL=>1xSI',
-    C: '4xHCP=>4xC',
+    C: '4xGRN=>4xC',
   });
 
   let inputs: Ingredient[] = [];
