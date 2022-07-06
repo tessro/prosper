@@ -1,16 +1,9 @@
-import { useState, useCallback } from 'react';
-import ReactFlow, {
-  FitViewOptions,
-  applyNodeChanges,
-  applyEdgeChanges,
-  Node,
-  Edge,
-  NodeChange,
-  EdgeChange,
-} from 'react-flow-renderer';
+import React, { useState } from 'react';
+import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
 import './App.css';
 import { loadRecipes } from './fio';
 import { RecipeGraph, Decision, Ingredient } from './graph';
+import { MaterialDatabase } from './MaterialDatabase';
 import RecipeNode from './RecipeNode';
 
 const fitViewOptions: FitViewOptions = {
@@ -48,6 +41,7 @@ function App() {
   const ticker = match?.[1].toUpperCase();
   const quantity = match?.[2] ? parseInt(match?.[2]) : 1;
   const graph = new RecipeGraph(loadRecipes());
+  const materials = MaterialDatabase.default();
 
   const [selectedRecipes, setSelectedRecipes] = useState<
     Record<string, string>
@@ -90,6 +84,10 @@ function App() {
     });
   };
 
+  const handleMaterialChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    window.location.pathname = `/production-chains/${e.target.value}`;
+  };
+
   return (
     <div className="App" style={{ width: '100vw', height: '100vh' }}>
       <div
@@ -102,6 +100,15 @@ function App() {
           padding: 5,
         }}
       >
+        <div>
+          <select defaultValue={ticker} onChange={handleMaterialChange}>
+            {materials.all().map((m) => (
+              <option value={m.ticker}>
+                {m.ticker} ({m.name})
+              </option>
+            ))}
+          </select>
+        </div>
         Raw inputs:
         <ul style={{ margin: 0 }}>
           {inputs.map((i, ix) => (
