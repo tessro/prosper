@@ -33,6 +33,10 @@ interface GetInputsOptions {
   selectedRecipes: Record<string, string>;
 }
 
+interface GetDecisionsOptions {
+  selectedRecipes: Record<string, string>;
+}
+
 interface FlowGraphProps {
   needs: number;
   depth: number;
@@ -71,10 +75,18 @@ class Node {
     return this.recipes[0];
   }
 
-  getDecisions(): Decision[] {
-    const decisions = this.recipes.flatMap((r) =>
-      r.inputs.flatMap((input) => input.material.getDecisions())
-    );
+  getDecisions(options: GetDecisionsOptions): Decision[] {
+    let decisions: Decision[] = [];
+    if (options.selectedRecipes[this.ticker]) {
+      decisions = this.recipes
+        .find((r) => r.name === options.selectedRecipes[this.ticker])!
+        .inputs.flatMap((input) => input.material.getDecisions(options));
+    } else {
+      decisions = this.recipes.flatMap((r) =>
+        r.inputs.flatMap((input) => input.material.getDecisions(options))
+      );
+    }
+
     if (this.recipes.length > 1) {
       decisions.push({
         material: this,
@@ -253,8 +265,14 @@ export class RecipeGraph {
     return (this.roots[ticker] ??= new Node(ticker));
   }
 
-  getDecisions(ticker: string): Decision[] {
-    return this.get(ticker).getDecisions();
+  getDecisions(
+    ticker: string,
+    options: Partial<GetDecisionsOptions> = {}
+  ): Decision[] {
+    return this.get(ticker).getDecisions({
+      selectedRecipes: {},
+      ...options,
+    });
   }
 
   getInputs(ticker: string, options: GetInputsOptions): Ingredient[] {

@@ -69,7 +69,12 @@ function App() {
 
   let flow = <></>;
   if (ticker) {
-    decisions = graph.getDecisions(ticker);
+    decisions = graph.getDecisions(ticker, {
+      selectedRecipes: {
+        ...DEFAULT_RECIPES,
+        ...selectedRecipes,
+      },
+    });
     inputs = graph.getInputs(ticker, {
       quantity,
       selectedRecipes: {
