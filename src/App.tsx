@@ -66,6 +66,7 @@ function App() {
   let flow = <></>;
   if (ticker) {
     inputs = graph.getInputs(ticker.toUpperCase(), {
+      quantity: 1,
       selectedRecipes: {
         AL: '6xALO 1xC 1xO=>3xAL',
         DW: '10xH2O 1xPG=>10xDW',

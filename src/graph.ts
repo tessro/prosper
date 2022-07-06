@@ -24,6 +24,7 @@ interface Recipe {
 }
 
 interface GetInputsOptions {
+  quantity?: number;
   selectedRecipes: Record<string, string>;
 }
 
@@ -63,8 +64,9 @@ class Node {
   }
 
   getInputs(options: GetInputsOptions): Ingredient[] {
+    const quantity = options.quantity ?? 1;
     if (this.recipes.length === 0 || TERMINALS.includes(this.ticker)) {
-      return [{ quantity: 1, material: this }];
+      return [{ quantity, material: this }];
     } else {
       const recipe =
         this.recipes.length === 1
@@ -84,10 +86,14 @@ class Node {
       )!.quantity;
 
       const inputs = recipe.inputs.flatMap((input) =>
-        input.material.getInputs(options).map((ingredient) => ({
-          ...ingredient,
-          quantity: (ingredient.quantity * input.quantity) / outputQuantity,
-        }))
+        input.material
+          .getInputs({ ...options, quantity: 1 })
+          .map((ingredient) => ({
+            ...ingredient,
+            quantity:
+              (quantity * (ingredient.quantity * input.quantity)) /
+              outputQuantity,
+          }))
       );
 
       const quantities: Record<string, Ingredient> = {};
