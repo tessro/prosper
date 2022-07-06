@@ -134,7 +134,7 @@ function App() {
         <div>
           <select defaultValue={ticker} onChange={handleMaterialChange}>
             {materials.all().map((m) => (
-              <option value={m.ticker}>
+              <option key={m.ticker} value={m.ticker}>
                 {m.ticker} ({m.name})
               </option>
             ))}
