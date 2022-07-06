@@ -35,7 +35,7 @@ function Flow(props: FlowProps) {
   );
 }
 
-const DEFAULT_RECIPES = {
+const DEFAULT_RECIPES: Record<string, string> = {
   AL: '6xALO 1xC 1xO=>3xAL',
   DW: '10xH2O 1xPG=>10xDW',
   HCP: '2xH2O=>4xHCP',
@@ -99,15 +99,25 @@ function App() {
         'selectedRecipes',
         JSONCrush.crush(JSON.stringify(userSelectedRecipes))
       );
+    } else {
+      url.searchParams.delete('selectedRecipes');
     }
+
     window.history.pushState({}, '', url);
   }, [ticker, quantity, userSelectedRecipes]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setUserSelectedRecipes({
-      ...userSelectedRecipes,
-      [e.target.name]: e.target.value,
-    });
+    const ticker = e.target.name;
+    const recipeName = e.target.value;
+    if (DEFAULT_RECIPES[ticker] === recipeName) {
+      const { [ticker]: _, ...rest } = userSelectedRecipes;
+      setUserSelectedRecipes({ ...rest });
+    } else {
+      setUserSelectedRecipes({
+        ...userSelectedRecipes,
+        [ticker]: recipeName,
+      });
+    }
   };
 
   const handleMaterialChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
