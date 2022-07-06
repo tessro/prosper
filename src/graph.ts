@@ -3,32 +3,32 @@ import {
   Edge as FlowEdge,
   Position,
 } from 'react-flow-renderer';
-import type { Recipe } from './fio';
+import type { Recipe as FioRecipe } from './fio';
 
 interface FlowGraph {
   nodes: FlowNode[];
   edges: FlowEdge[];
 }
 
-interface GraphIngredient {
+interface Ingredient {
   material: Node;
   quantity: number;
 }
 
-interface GraphRecipe {
+interface Recipe {
   building: string;
   name: string;
   duration: number;
-  outputs: GraphIngredient[];
-  inputs: GraphIngredient[];
+  outputs: Ingredient[];
+  inputs: Ingredient[];
 }
 
 class Node {
-  readonly recipes: GraphRecipe[] = [];
+  readonly recipes: Recipe[] = [];
 
   constructor(public readonly ticker: string) {}
 
-  private pickRecipe(props: FlowGraphProps): GraphRecipe | undefined {
+  private pickRecipe(props: FlowGraphProps): Recipe | undefined {
     if (props.terminals.includes(this.ticker)) return;
 
     return (
@@ -144,7 +144,7 @@ const FLOW_GRAPH_DEFAULTS = {
 export class RecipeGraph {
   private readonly roots: Record<string, Node> = {};
 
-  constructor(recipes: Recipe[]) {
+  constructor(recipes: FioRecipe[]) {
     for (const recipe of recipes) {
       for (const output of recipe.outputs) {
         const node = (this.roots[output.ticker] ??= new Node(output.ticker));
