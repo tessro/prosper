@@ -92,8 +92,10 @@ function App() {
     const url = new URL(window.location.href);
     url.pathname = `/production-chains/${ticker}/${quantity}`;
     if (Object.keys(selectedRecipes).length > 0) {
-      url.pathname +=
-        '?selectedRecipes=' + JSONCrush.crush(JSON.stringify(selectedRecipes));
+      url.searchParams.set(
+        'selectedRecipes',
+        JSONCrush.crush(JSON.stringify(selectedRecipes))
+      );
     }
     window.history.pushState({}, '', url);
   }, [ticker, quantity, selectedRecipes]);
