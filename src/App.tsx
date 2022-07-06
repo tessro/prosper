@@ -38,8 +38,10 @@ function App() {
   const match = window.location.pathname.match(
     /^\/production-chains\/([a-zA-Z0-9]+)(?:\/([0-9]+))?$/
   );
-  const ticker = match?.[1].toUpperCase();
-  const quantity = match?.[2] ? parseInt(match?.[2]) : 1;
+  const [ticker, setTicker] = useState(match?.[1].toUpperCase());
+  const [quantity, setQuantity] = useState(
+    match?.[2] ? parseInt(match?.[2]) : 1
+  );
   const graph = new RecipeGraph(loadRecipes());
   const materials = MaterialDatabase.default();
 
@@ -77,15 +79,32 @@ function App() {
     flow = <Flow nodes={nodes} edges={edges} />;
   }
 
+  const updateUrl = () => {
+    window.history.pushState(
+      {},
+      '',
+      `/production-chains/${ticker}/${quantity}?selectedRecipes=${JSON.stringify(
+        selectedRecipes
+      )}`
+    );
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedRecipes({
       ...selectedRecipes,
       [e.target.name]: e.target.value,
     });
+    updateUrl();
   };
 
   const handleMaterialChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    window.location.pathname = `/production-chains/${e.target.value}`;
+    setTicker(e.target.value);
+    updateUrl();
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuantity(parseInt(e.target.value));
+    updateUrl();
   };
 
   return (
@@ -108,6 +127,11 @@ function App() {
               </option>
             ))}
           </select>
+          <input
+            type="number"
+            defaultValue={quantity}
+            onChange={handleQuantityChange}
+          />
         </div>
         Raw inputs:
         <ul style={{ margin: 0 }}>
