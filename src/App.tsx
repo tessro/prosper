@@ -59,6 +59,7 @@ function App() {
     MAI: '4xH2O=>12xMAI',
     FE: '6xFEO 1xC 1xO=>3xFE',
     GL: '1xSIO=>10xGL',
+    RAT: '1xMUS 1xNUT 1xMAI=>10xRAT',
     RG: '10xGL 15xPG=>10xRG',
     SI: '3xSIO 1xAL=>1xSI',
     C: '4xGRN=>4xC',
