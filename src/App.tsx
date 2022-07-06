@@ -10,7 +10,7 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import './App.css';
 import { loadRecipes } from './fio';
-import { RecipeGraph, Ingredient } from './graph';
+import { RecipeGraph, Decision, Ingredient } from './graph';
 import RecipeNode from './RecipeNode';
 
 const fitViewOptions: FitViewOptions = {
@@ -27,26 +27,11 @@ interface FlowProps {
 }
 
 function Flow(props: FlowProps) {
-  const [nodes, setNodes] = useState<Node[]>(props.nodes);
-  const [edges, setEdges] = useState<Edge[]>(props.edges);
-
-  const onNodesChange = useCallback(
-    (changes: NodeChange[]) =>
-      setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes]
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange[]) =>
-      setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges]
-  );
   return (
     <ReactFlow
-      nodes={nodes}
-      edges={edges}
+      defaultNodes={props.nodes}
+      defaultEdges={props.edges}
       nodeTypes={nodeTypes}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
       nodesConnectable={false}
       fitView
       fitViewOptions={fitViewOptions}
@@ -64,35 +49,51 @@ function App() {
   const quantity = match?.[2] ? parseInt(match?.[2]) : 1;
   const graph = new RecipeGraph(loadRecipes());
 
+  const [selectedRecipes, setSelectedRecipes] = useState<
+    Record<string, string>
+  >({
+    AL: '6xALO 1xC 1xO=>3xAL',
+    DW: '10xH2O 1xPG=>10xDW',
+    HCP: '2xH2O=>4xHCP',
+    GRN: '1xH2O=>4xGRN',
+    MAI: '4xH2O=>12xMAI',
+    FE: '6xFEO 1xC 1xO=>3xFE',
+    GL: '1xSIO=>10xGL',
+    RG: '10xGL 15xPG=>10xRG',
+    SI: '3xSIO 1xAL=>1xSI',
+    C: '4xHCP=>4xC',
+  });
+
   let inputs: Ingredient[] = [];
+  let decisions: Decision[] = [];
+
   let flow = <></>;
   if (ticker) {
+    decisions = graph.getDecisions(ticker);
     inputs = graph.getInputs(ticker, {
       quantity,
-      selectedRecipes: {
-        AL: '6xALO 1xC 1xO=>3xAL',
-        DW: '10xH2O 1xPG=>10xDW',
-        HCP: '2xH2O=>4xHCP',
-        GRN: '4xH2O=>4xGRN',
-        MAI: '4xH2O=>12xMAI',
-        FE: '6xFEO 1xC 1xO=>3xFE',
-        GL: '1xSIO=>10xGL',
-        RG: '10xGL 15xPG=>10xRG',
-        SI: '3xSIO 1xAL=>1xSI',
-        C: '4xHCP 2xGRN 2xMAI=>4xC',
-      },
+      selectedRecipes,
     });
     const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
       needs: quantity,
+      selectedRecipes,
     });
+    console.log(selectedRecipes, nodes);
     flow = <Flow nodes={nodes} edges={edges} />;
   }
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedRecipes({
+      ...selectedRecipes,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   return (
     <div className="App" style={{ width: '100vw', height: '100vh' }}>
       <div
         style={{
-          width: 150,
+          width: 280,
           textAlign: 'left',
           position: 'fixed',
           zIndex: 10,
@@ -105,6 +106,25 @@ function App() {
           {inputs.map((i, ix) => (
             <li key={ix}>
               {Math.round(100 * i.quantity) / 100} {i.material.ticker}
+            </li>
+          ))}
+        </ul>
+        Recipes:
+        <ul style={{ margin: 0 }}>
+          {decisions.map((d, ix) => (
+            <li key={ix}>
+              {d.material.ticker}:&nbsp;
+              <select
+                name={d.material.ticker}
+                onChange={handleChange}
+                defaultValue={selectedRecipes[d.material.ticker]}
+              >
+                {d.recipes.map((recipe) => (
+                  <option key={recipe.name} value={recipe.name}>
+                    {recipe.name}
+                  </option>
+                ))}
+              </select>
             </li>
           ))}
         </ul>

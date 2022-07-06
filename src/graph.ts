@@ -10,6 +10,11 @@ interface FlowGraph {
   edges: FlowEdge[];
 }
 
+export interface Decision {
+  material: Node;
+  recipes: Recipe[];
+}
+
 export interface Ingredient {
   material: Node;
   quantity: number;
@@ -33,7 +38,7 @@ interface FlowGraphProps {
   depth: number;
   y: number;
   spread: number;
-  recipePicks: string[];
+  selectedRecipes: Record<string, string>;
   terminals: string[];
 }
 
@@ -42,7 +47,7 @@ const FLOW_GRAPH_DEFAULTS = {
   depth: 0,
   y: 0,
   spread: 1000,
-  recipePicks: ['6xFEO 1xC 1xO=>3xFE'],
+  selectedRecipes: {},
   terminals: ['O'],
 };
 
@@ -57,10 +62,34 @@ class Node {
   private pickRecipe(props: FlowGraphProps): Recipe | undefined {
     if (props.terminals.includes(this.ticker)) return;
 
-    return (
-      this.recipes.find((r) => props.recipePicks.includes(r.name)) ??
-      this.recipes[0]
+    if (props.selectedRecipes[this.ticker]) {
+      return this.recipes.find(
+        (r) => r.name === props.selectedRecipes[this.ticker]
+      );
+    }
+
+    return this.recipes[0];
+  }
+
+  getDecisions(): Decision[] {
+    const decisions = this.recipes.flatMap((r) =>
+      r.inputs.flatMap((input) => input.material.getDecisions())
     );
+    if (this.recipes.length > 1) {
+      decisions.push({
+        material: this,
+        recipes: this.recipes,
+      });
+    }
+    const seen = new Set<string>();
+    return decisions.filter((d) => {
+      const ticker = d.material.ticker;
+      if (!seen.has(ticker)) {
+        seen.add(ticker);
+        return true;
+      }
+      return false;
+    });
   }
 
   getInputs(options: GetInputsOptions): Ingredient[] {
@@ -69,11 +98,9 @@ class Node {
       return [{ quantity, material: this }];
     } else {
       const recipe =
-        this.recipes.length === 1
-          ? this.recipes[0]
-          : this.recipes.find(
-              (r) => r.name === options.selectedRecipes[this.ticker]
-            );
+        this.recipes.find(
+          (r) => r.name === options.selectedRecipes[this.ticker]
+        ) ?? this.recipes[0];
 
       if (!recipe) {
         throw new Error(
@@ -224,6 +251,10 @@ export class RecipeGraph {
 
   private getOrCreate(ticker: string): Node {
     return (this.roots[ticker] ??= new Node(ticker));
+  }
+
+  getDecisions(ticker: string): Decision[] {
+    return this.get(ticker).getDecisions();
   }
 
   getInputs(ticker: string, options: GetInputsOptions): Ingredient[] {
