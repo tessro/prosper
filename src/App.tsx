@@ -57,16 +57,18 @@ function Flow(props: FlowProps) {
 }
 
 function App() {
-  const ticker = window.location.pathname.match(
-    /^\/production-chains\/([a-zA-Z0-9]+)$/
-  )?.[1];
+  const match = window.location.pathname.match(
+    /^\/production-chains\/([a-zA-Z0-9]+)(?:\/([0-9]+))?$/
+  );
+  const ticker = match?.[1].toUpperCase();
+  const quantity = match?.[2] ? parseInt(match?.[2]) : 1;
   const graph = new RecipeGraph(loadRecipes());
 
   let inputs: Ingredient[] = [];
   let flow = <></>;
   if (ticker) {
-    inputs = graph.getInputs(ticker.toUpperCase(), {
-      quantity: 1,
+    inputs = graph.getInputs(ticker, {
+      quantity,
       selectedRecipes: {
         AL: '6xALO 1xC 1xO=>3xAL',
         DW: '10xH2O 1xPG=>10xDW',
@@ -80,7 +82,9 @@ function App() {
         C: '4xHCP 2xGRN 2xMAI=>4xC',
       },
     });
-    const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase());
+    const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
+      needs: quantity,
+    });
     flow = <Flow nodes={nodes} edges={edges} />;
   }
 

@@ -230,10 +230,10 @@ export class RecipeGraph {
     return this.get(ticker).getInputs(options);
   }
 
-  getFlowGraph(
-    ticker: string,
-    props: FlowGraphProps = FLOW_GRAPH_DEFAULTS
-  ): FlowGraph {
-    return this.get(ticker).toFlow(props);
+  getFlowGraph(ticker: string, props: Partial<FlowGraphProps> = {}): FlowGraph {
+    return this.get(ticker).toFlow({
+      ...FLOW_GRAPH_DEFAULTS,
+      ...props,
+    });
   }
 }
