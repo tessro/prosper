@@ -269,10 +269,12 @@ export class RecipeGraph {
     ticker: string,
     options: Partial<GetDecisionsOptions> = {}
   ): Decision[] {
-    return this.get(ticker).getDecisions({
-      selectedRecipes: {},
-      ...options,
-    });
+    return this.get(ticker)
+      .getDecisions({
+        selectedRecipes: {},
+        ...options,
+      })
+      .sort((a, b) => a.material.ticker.localeCompare(b.material.ticker));
   }
 
   getInputs(ticker: string, options: GetInputsOptions): Ingredient[] {
