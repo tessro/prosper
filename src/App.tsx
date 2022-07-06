@@ -158,7 +158,7 @@ function App() {
         Recipes:
         <ul style={{ margin: 0 }}>
           {decisions.map((d, ix) => (
-            <li key={ix}>
+            <li key={d.material.ticker}>
               {d.material.ticker}:&nbsp;
               <select
                 name={d.material.ticker}
