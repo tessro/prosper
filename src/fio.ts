@@ -166,7 +166,7 @@ export interface Material {
 }
 
 export interface Ingredient {
-  product: string;
+  ticker: string;
   quantity: number;
 }
 
@@ -208,11 +208,11 @@ export function loadRecipes(): Recipe[] {
       building: raw.BuildingTicker,
       name: raw.RecipeName,
       inputs: raw.Inputs.map((raw) => ({
-        product: raw.Ticker,
+        ticker: raw.Ticker,
         quantity: raw.Amount,
       })),
       outputs: raw.Outputs.map((raw) => ({
-        product: raw.Ticker,
+        ticker: raw.Ticker,
         quantity: raw.Amount,
       })),
       duration: raw.TimeMs,

@@ -11,7 +11,7 @@ interface FlowGraph {
 }
 
 interface GraphIngredient {
-  product: Node;
+  material: Node;
   quantity: number;
 }
 
@@ -55,7 +55,7 @@ class Node {
     const inputs = recipe?.inputs ?? [];
 
     const subgraph = inputs.map((i, ix) => {
-      return i.product.toFlow({
+      return i.material.toFlow({
         ...props,
         needs:
           (props.needs / (recipe?.outputs[0].quantity ?? 1)) *
@@ -67,9 +67,9 @@ class Node {
     });
     const edges = [
       ...inputs.map((i) => ({
-        id: `${this.ticker}-${i.product.ticker}`,
+        id: `${this.ticker}-${i.material.ticker}`,
         source: this.ticker,
-        target: i.product.ticker,
+        target: i.material.ticker,
       })),
       ...subgraph.flatMap((i) => i.edges),
     ];
@@ -147,16 +147,16 @@ export class RecipeGraph {
   constructor(recipes: Recipe[]) {
     for (const recipe of recipes) {
       for (const output of recipe.outputs) {
-        const node = (this.roots[output.product] ??= new Node(output.product));
+        const node = (this.roots[output.ticker] ??= new Node(output.ticker));
 
         node.recipes.push({
           ...recipe,
           inputs: recipe.inputs.map((p) => ({
-            product: this.getOrCreate(p.product),
+            material: this.getOrCreate(p.ticker),
             quantity: p.quantity,
           })),
           outputs: recipe.outputs.map((p) => ({
-            product: this.getOrCreate(p.product),
+            material: this.getOrCreate(p.ticker),
             quantity: p.quantity,
           })),
         });
@@ -164,18 +164,18 @@ export class RecipeGraph {
     }
   }
 
-  private get(product: string): Node {
-    return this.roots[product];
+  private get(ticker: string): Node {
+    return this.roots[ticker];
   }
 
-  private getOrCreate(product: string): Node {
-    return (this.roots[product] ??= new Node(product));
+  private getOrCreate(ticker: string): Node {
+    return (this.roots[ticker] ??= new Node(ticker));
   }
 
   getFlowGraph(
-    product: string,
+    ticker: string,
     props: FlowGraphProps = FLOW_GRAPH_DEFAULTS
   ): FlowGraph {
-    return this.get(product).toFlow(props);
+    return this.get(ticker).toFlow(props);
   }
 }
