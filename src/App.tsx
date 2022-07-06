@@ -1,5 +1,5 @@
 import JSONCrush from 'jsoncrush';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
 import './App.css';
 import { loadRecipes } from './fio';
@@ -43,7 +43,7 @@ const DEFAULT_RECIPES = {
   MAI: '4xH2O=>12xMAI',
   FE: '6xFEO 1xC 1xO=>3xFE',
   GL: '1xSIO=>10xGL',
-  RAT: '1xMUS 1xNUT 1xMAI=>10xRAT',
+  RAT: '1xGRN 1xBEA 1xNUT=>10xRAT',
   RG: '10xGL 15xPG=>10xRG',
   SI: '3xSIO 1xAL=>1xSI',
   C: '4xGRN=>4xC',
@@ -60,34 +60,33 @@ function App() {
   const graph = new RecipeGraph(loadRecipes());
   const materials = MaterialDatabase.default();
 
-  const [selectedRecipes, setSelectedRecipes] = useState<
+  const [userSelectedRecipes, setUserSelectedRecipes] = useState<
     Record<string, string>
   >({});
 
   let inputs: Ingredient[] = [];
   let decisions: Decision[] = [];
 
+  const selectedRecipes: Record<string, string> = useMemo(
+    () => ({
+      ...DEFAULT_RECIPES,
+      ...userSelectedRecipes,
+    }),
+    [userSelectedRecipes]
+  );
+
   let flow = <></>;
   if (ticker) {
     decisions = graph.getDecisions(ticker, {
-      selectedRecipes: {
-        ...DEFAULT_RECIPES,
-        ...selectedRecipes,
-      },
+      selectedRecipes,
     });
     inputs = graph.getInputs(ticker, {
       quantity,
-      selectedRecipes: {
-        ...DEFAULT_RECIPES,
-        ...selectedRecipes,
-      },
+      selectedRecipes,
     });
     const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
       needs: quantity,
-      selectedRecipes: {
-        ...DEFAULT_RECIPES,
-        ...selectedRecipes,
-      },
+      selectedRecipes,
     });
     flow = <Flow nodes={nodes} edges={edges} />;
   }
@@ -105,7 +104,7 @@ function App() {
   }, [ticker, quantity, selectedRecipes]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedRecipes({
+    setUserSelectedRecipes({
       ...selectedRecipes,
       [e.target.name]: e.target.value,
     });
