@@ -22,18 +22,13 @@ const nodeTypes = {
 };
 
 interface FlowProps {
-  ticker: string;
+  nodes: Node[];
+  edges: Edge[];
 }
 
 function Flow(props: FlowProps) {
-  const graph = new RecipeGraph(loadRecipes());
-  const tree = graph.getTree(props.ticker);
-
-  const initialNodes: Node[] = tree.nodes;
-  const initialEdges: Edge[] = tree.edges;
-
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
-  const [edges, setEdges] = useState<Edge[]>(initialEdges);
+  const [nodes, setNodes] = useState<Node[]>(props.nodes);
+  const [edges, setEdges] = useState<Edge[]>(props.edges);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) =>
@@ -65,7 +60,14 @@ function App() {
   const ticker = window.location.pathname.match(
     /^\/production-chains\/([a-zA-Z0-9]+)$/
   )?.[1];
-  const flow = ticker ? <Flow ticker={ticker.toUpperCase()} /> : <></>;
+  const graph = new RecipeGraph(loadRecipes());
+
+  let flow = <></>;
+  if (ticker) {
+    const tree = graph.getTree(ticker.toUpperCase());
+    flow = <Flow nodes={tree.nodes} edges={tree.edges} />;
+  }
+
   return (
     <div className="App" style={{ width: '100vw', height: '100vh' }}>
       {flow}
