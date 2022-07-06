@@ -53,7 +53,7 @@ function App() {
   const match = window.location.pathname.match(
     /^\/production-chains\/([a-zA-Z0-9]+)(?:\/([0-9]+))?$/
   );
-  const [ticker, setTicker] = useState(match?.[1].toUpperCase());
+  const [ticker, setTicker] = useState(match?.[1].toUpperCase() ?? 'RAT');
   const [quantity, setQuantity] = useState(
     match?.[2] ? parseInt(match?.[2]) : 1
   );
