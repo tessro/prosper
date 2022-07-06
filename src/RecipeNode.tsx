@@ -18,7 +18,16 @@ const baseNodeStyle = {
   textDecoration: 'none',
 };
 
-export default memo(({ data, isConnectable }: NodeProps) => {
+interface RecipeProps {
+  needs: number;
+  ticker: string;
+  recipes: any[];
+  selectedRecipe: any;
+}
+
+type RecipeNodeProps = NodeProps<RecipeProps>;
+
+export default memo(({ data, isConnectable }: RecipeNodeProps) => {
   const material = materials.findByTicker(data.ticker);
 
   const nodeStyle = {
