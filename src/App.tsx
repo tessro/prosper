@@ -64,7 +64,7 @@ function App() {
 
   let flow = <></>;
   if (ticker) {
-    const tree = graph.getTree(ticker.toUpperCase());
+    const tree = graph.getFlowGraph(ticker.toUpperCase());
     flow = <Flow nodes={tree.nodes} edges={tree.edges} />;
   }
 

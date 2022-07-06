@@ -37,7 +37,7 @@ class Node {
     );
   }
 
-  getTree(props: FlowGraphProps = FLOW_GRAPH_DEFAULTS): FlowGraph {
+  toFlow(props: FlowGraphProps = FLOW_GRAPH_DEFAULTS): FlowGraph {
     const recipe = this.pickRecipe(props);
 
     const node = {
@@ -55,7 +55,7 @@ class Node {
     const inputs = recipe?.inputs ?? [];
 
     const subgraph = inputs.map((i, ix) => {
-      return i.product.getTree({
+      return i.product.toFlow({
         ...props,
         needs:
           (props.needs / (recipe?.outputs[0].quantity ?? 1)) *
@@ -172,10 +172,10 @@ export class RecipeGraph {
     return (this.roots[product] ??= new Node(product));
   }
 
-  getTree(
+  getFlowGraph(
     product: string,
     props: FlowGraphProps = FLOW_GRAPH_DEFAULTS
   ): FlowGraph {
-    return this.get(product).getTree(props);
+    return this.get(product).toFlow(props);
   }
 }
