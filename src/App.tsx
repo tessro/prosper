@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import JSONCrush from 'jsoncrush';
+import { useEffect, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
 import './App.css';
 import { loadRecipes } from './fio';
@@ -34,6 +35,20 @@ function Flow(props: FlowProps) {
   );
 }
 
+const DEFAULT_RECIPES = {
+  AL: '6xALO 1xC 1xO=>3xAL',
+  DW: '10xH2O 1xPG=>10xDW',
+  HCP: '2xH2O=>4xHCP',
+  GRN: '1xH2O=>4xGRN',
+  MAI: '4xH2O=>12xMAI',
+  FE: '6xFEO 1xC 1xO=>3xFE',
+  GL: '1xSIO=>10xGL',
+  RAT: '1xMUS 1xNUT 1xMAI=>10xRAT',
+  RG: '10xGL 15xPG=>10xRG',
+  SI: '3xSIO 1xAL=>1xSI',
+  C: '4xGRN=>4xC',
+};
+
 function App() {
   const match = window.location.pathname.match(
     /^\/production-chains\/([a-zA-Z0-9]+)(?:\/([0-9]+))?$/
@@ -47,19 +62,7 @@ function App() {
 
   const [selectedRecipes, setSelectedRecipes] = useState<
     Record<string, string>
-  >({
-    AL: '6xALO 1xC 1xO=>3xAL',
-    DW: '10xH2O 1xPG=>10xDW',
-    HCP: '2xH2O=>4xHCP',
-    GRN: '1xH2O=>4xGRN',
-    MAI: '4xH2O=>12xMAI',
-    FE: '6xFEO 1xC 1xO=>3xFE',
-    GL: '1xSIO=>10xGL',
-    RAT: '1xMUS 1xNUT 1xMAI=>10xRAT',
-    RG: '10xGL 15xPG=>10xRG',
-    SI: '3xSIO 1xAL=>1xSI',
-    C: '4xGRN=>4xC',
-  });
+  >({});
 
   let inputs: Ingredient[] = [];
   let decisions: Decision[] = [];
@@ -69,42 +72,45 @@ function App() {
     decisions = graph.getDecisions(ticker);
     inputs = graph.getInputs(ticker, {
       quantity,
-      selectedRecipes,
+      selectedRecipes: {
+        ...DEFAULT_RECIPES,
+        ...selectedRecipes,
+      },
     });
     const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
       needs: quantity,
-      selectedRecipes,
+      selectedRecipes: {
+        ...DEFAULT_RECIPES,
+        ...selectedRecipes,
+      },
     });
     console.log(selectedRecipes, nodes);
     flow = <Flow nodes={nodes} edges={edges} />;
   }
 
-  const updateUrl = () => {
-    window.history.pushState(
-      {},
-      '',
-      `/production-chains/${ticker}/${quantity}?selectedRecipes=${JSON.stringify(
-        selectedRecipes
-      )}`
-    );
-  };
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.pathname = `/production-chains/${ticker}/${quantity}`;
+    if (Object.keys(selectedRecipes).length > 0) {
+      url.pathname +=
+        '?selectedRecipes=' + JSONCrush.crush(JSON.stringify(selectedRecipes));
+    }
+    window.history.pushState({}, '', url);
+  }, [ticker, quantity, selectedRecipes]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedRecipes({
       ...selectedRecipes,
       [e.target.name]: e.target.value,
     });
-    updateUrl();
   };
 
   const handleMaterialChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setTicker(e.target.value);
-    updateUrl();
   };
 
   const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuantity(parseInt(e.target.value));
-    updateUrl();
   };
 
   return (
