@@ -45,7 +45,7 @@ export default memo(({ data, isConnectable }: RecipeNodeProps) => {
         onConnect={(params) => console.log('handle onConnect', params)}
         isConnectable={isConnectable}
       />
-      <div>{Math.round(data.needs * 10) / 10}</div>
+      <div>{Math.round(data.needs * 100) / 100}</div>
       <div>
         <strong>{data.ticker}</strong>
       </div>
