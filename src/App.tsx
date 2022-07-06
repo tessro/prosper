@@ -70,7 +70,7 @@ function Flow(props: FlowProps) {
 
 function App() {
   const ticker = window.location.pathname.match(
-    /^\/supply-chain\/([a-zA-Z0-9]+)$/
+    /^\/production-chains\/([a-zA-Z0-9]+)$/
   )?.[1];
   const flow = ticker ? <Flow ticker={ticker.toUpperCase()} /> : <></>;
   return (

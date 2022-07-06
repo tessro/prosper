@@ -28,7 +28,7 @@ export default memo(({ data, isConnectable }: NodeProps) => {
   };
 
   return (
-    <a href={`/supply-chain/${data.ticker}`} style={nodeStyle}>
+    <a href={`/production-chains/${data.ticker}`} style={nodeStyle}>
       <Handle
         type="target"
         position={Position.Left}
