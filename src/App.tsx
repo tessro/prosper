@@ -105,7 +105,7 @@ function App() {
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setUserSelectedRecipes({
-      ...selectedRecipes,
+      ...userSelectedRecipes,
       [e.target.name]: e.target.value,
     });
   };
