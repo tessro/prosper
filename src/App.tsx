@@ -68,6 +68,7 @@ function App() {
     inputs = graph.getInputs(ticker.toUpperCase(), {
       selectedRecipes: {
         AL: '6xALO 1xC 1xO=>3xAL',
+        DW: '10xH2O 1xPG=>10xDW',
         HCP: '2xH2O=>4xHCP',
         GRN: '4xH2O=>4xGRN',
         MAI: '4xH2O=>12xMAI',
