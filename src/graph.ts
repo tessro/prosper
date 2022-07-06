@@ -3,6 +3,7 @@ import {
   Edge as FlowEdge,
   Position,
 } from 'react-flow-renderer';
+import { textChangeRangeIsUnchanged } from 'typescript';
 import type { Recipe as FioRecipe } from './fio';
 
 interface FlowGraph {
@@ -10,7 +11,7 @@ interface FlowGraph {
   edges: FlowEdge[];
 }
 
-interface Ingredient {
+export interface Ingredient {
   material: Node;
   quantity: number;
 }
@@ -22,6 +23,31 @@ interface Recipe {
   outputs: Ingredient[];
   inputs: Ingredient[];
 }
+
+interface GetInputsOptions {
+  selectedRecipes: Record<string, string>;
+}
+
+interface FlowGraphProps {
+  needs: number;
+  depth: number;
+  y: number;
+  spread: number;
+  recipePicks: string[];
+  terminals: string[];
+}
+
+const FLOW_GRAPH_DEFAULTS = {
+  needs: 1,
+  depth: 0,
+  y: 0,
+  spread: 1000,
+  recipePicks: ['6xFEO 1xC 1xO=>3xFE'],
+  terminals: ['O'],
+};
+
+// Never try to manufacture these
+const TERMINALS = ['O'];
 
 class Node {
   readonly recipes: Recipe[] = [];
@@ -35,6 +61,47 @@ class Node {
       this.recipes.find((r) => props.recipePicks.includes(r.name)) ??
       this.recipes[0]
     );
+  }
+
+  getInputs(options: GetInputsOptions): Ingredient[] {
+    if (this.recipes.length === 0 || TERMINALS.includes(this.ticker)) {
+      return [{ quantity: 1, material: this }];
+    } else {
+      const recipe =
+        this.recipes.length === 1
+          ? this.recipes[0]
+          : this.recipes.find(
+              (r) => r.name === options.selectedRecipes[this.ticker]
+            );
+
+      if (!recipe) {
+        throw new Error(
+          `Selection required for '${this.ticker}': multiple recipes available`
+        );
+      }
+
+      const outputQuantity = recipe.outputs.find(
+        (o) => o.material.ticker === this.ticker
+      )!.quantity;
+
+      const inputs = recipe.inputs.flatMap((input) =>
+        input.material.getInputs(options).map((ingredient) => ({
+          ...ingredient,
+          quantity: (ingredient.quantity * input.quantity) / outputQuantity,
+        }))
+      );
+
+      const quantities: Record<string, Ingredient> = {};
+      for (const input of inputs) {
+        if (!quantities[input.material.ticker]) {
+          quantities[input.material.ticker] = input;
+        } else {
+          quantities[input.material.ticker].quantity += input.quantity;
+        }
+      }
+
+      return Object.keys(quantities).map((ticker) => quantities[ticker]);
+    }
   }
 
   toFlow(props: FlowGraphProps = FLOW_GRAPH_DEFAULTS): FlowGraph {
@@ -123,24 +190,6 @@ class Node {
   }
 }
 
-interface FlowGraphProps {
-  needs: number;
-  depth: number;
-  y: number;
-  spread: number;
-  recipePicks: string[];
-  terminals: string[];
-}
-
-const FLOW_GRAPH_DEFAULTS = {
-  needs: 1500,
-  depth: 0,
-  y: 0,
-  spread: 1000,
-  recipePicks: ['6xFEO 1xC 1xO=>3xFE'],
-  terminals: ['O'],
-};
-
 export class RecipeGraph {
   private readonly roots: Record<string, Node> = {};
 
@@ -170,6 +219,10 @@ export class RecipeGraph {
 
   private getOrCreate(ticker: string): Node {
     return (this.roots[ticker] ??= new Node(ticker));
+  }
+
+  getInputs(ticker: string, options: GetInputsOptions): Ingredient[] {
+    return this.get(ticker).getInputs(options);
   }
 
   getFlowGraph(

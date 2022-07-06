@@ -10,7 +10,7 @@ import ReactFlow, {
 } from 'react-flow-renderer';
 import './App.css';
 import { loadRecipes } from './fio';
-import { RecipeGraph } from './graph';
+import { RecipeGraph, Ingredient } from './graph';
 import RecipeNode from './RecipeNode';
 
 const fitViewOptions: FitViewOptions = {
@@ -62,14 +62,47 @@ function App() {
   )?.[1];
   const graph = new RecipeGraph(loadRecipes());
 
+  let inputs: Ingredient[] = [];
   let flow = <></>;
   if (ticker) {
+    inputs = graph.getInputs(ticker.toUpperCase(), {
+      selectedRecipes: {
+        AL: '6xALO 1xC 1xO=>3xAL',
+        HCP: '2xH2O=>4xHCP',
+        GRN: '4xH2O=>4xGRN',
+        MAI: '4xH2O=>12xMAI',
+        FE: '6xFEO 1xC 1xO=>3xFE',
+        GL: '1xSIO=>10xGL',
+        RG: '10xGL 15xPG=>10xRG',
+        SI: '3xSIO 1xAL=>1xSI',
+        C: '4xHCP 2xGRN 2xMAI=>4xC',
+      },
+    });
     const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase());
     flow = <Flow nodes={nodes} edges={edges} />;
   }
 
   return (
     <div className="App" style={{ width: '100vw', height: '100vh' }}>
+      <div
+        style={{
+          width: 150,
+          textAlign: 'left',
+          position: 'fixed',
+          zIndex: 10,
+          background: 'rgba(255, 255, 255, 0.8)',
+          padding: 5,
+        }}
+      >
+        Raw inputs:
+        <ul style={{ margin: 0 }}>
+          {inputs.map((i, ix) => (
+            <li key={ix}>
+              {Math.round(100 * i.quantity) / 100} {i.material.ticker}
+            </li>
+          ))}
+        </ul>
+      </div>
       {flow}
     </div>
   );
