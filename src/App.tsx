@@ -89,7 +89,6 @@ function App() {
         ...selectedRecipes,
       },
     });
-    console.log(selectedRecipes, nodes);
     flow = <Flow nodes={nodes} edges={edges} />;
   }
 
