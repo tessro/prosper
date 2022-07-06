@@ -133,8 +133,10 @@ function App() {
               </option>
             ))}
           </select>
+          Output quantity:{' '}
           <input
             type="number"
+            style={{ width: 60 }}
             defaultValue={quantity}
             onChange={handleQuantityChange}
           />
