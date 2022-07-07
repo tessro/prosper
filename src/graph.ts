@@ -204,7 +204,7 @@ class Node {
       return i.material.toFlow(
         {
           ...options,
-          quantity: (options.quantity / outputQuantity) * (i.quantity ?? 1),
+          quantity: i.quantity * (options.quantity / outputQuantity),
         },
         {
           spread: Math.max(200, state.spread / 2),
@@ -213,12 +213,15 @@ class Node {
         }
       );
     });
+
     const edges = [
       ...inputs.map((i) => ({
         id: `${this.ticker}-${i.material.ticker}`,
         source: this.ticker,
         target: i.material.ticker,
-        label: Math.round((100 * i.quantity) / outputQuantity) / 100,
+        label:
+          Math.round(100 * ((i.quantity * options.quantity) / outputQuantity)) /
+          100,
       })),
       ...subgraph.flatMap((i) => i.edges),
     ];
