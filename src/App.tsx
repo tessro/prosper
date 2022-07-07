@@ -49,6 +49,8 @@ const DEFAULT_RECIPES: Record<string, string> = {
   C: '4xGRN=>4xC',
 };
 
+const graph = new RecipeGraph(loadRecipes());
+
 function App() {
   const match = window.location.pathname.match(
     /^\/production-chains\/([a-zA-Z0-9]+)(?:\/([0-9]+))?$/
@@ -58,15 +60,11 @@ function App() {
   const [quantity, setQuantity] = useState(
     match?.[2] ? parseInt(match?.[2]) : 1
   );
-  const graph = new RecipeGraph(loadRecipes());
   const materials = MaterialDatabase.default();
 
   const [userSelectedRecipes, setUserSelectedRecipes] = useState<
     Record<string, string>
   >({});
-
-  let inputs: Ingredient[] = [];
-  let decisions: Decision[] = [];
 
   const selectedRecipes: Record<string, string> = useMemo(
     () => ({
@@ -76,22 +74,22 @@ function App() {
     [userSelectedRecipes]
   );
 
-  let flow = <></>;
-  if (ticker) {
-    decisions = graph.getDecisions(ticker, {
-      selectedRecipes,
-    });
-    inputs = graph.getInputs(ticker, {
-      quantity,
-      selectedRecipes,
-      includeIntermediates,
-    });
-    const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
-      quantity,
-      selectedRecipes,
-    });
-    flow = <Flow nodes={nodes} edges={edges} />;
-  }
+  const decisions = graph.getDecisions(ticker, {
+    selectedRecipes,
+  });
+  const inputs = graph.getInputs(ticker, {
+    quantity,
+    selectedRecipes,
+    includeIntermediates,
+  });
+  const { nodes, edges } = useMemo(
+    () =>
+      graph.getFlowGraph(ticker.toUpperCase(), {
+        quantity,
+        selectedRecipes,
+      }),
+    [graph, ticker, quantity, selectedRecipes]
+  );
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -202,7 +200,7 @@ function App() {
           ))}
         </ul>
       </div>
-      {flow}
+      <Flow nodes={nodes} edges={edges} />
     </div>
   );
 }
