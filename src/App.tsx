@@ -1,6 +1,7 @@
 import JSONCrush from 'jsoncrush';
 import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
+import { useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import { loadRecipes } from './fio';
 import { RecipeGraph } from './graph';
@@ -52,14 +53,11 @@ const DEFAULT_RECIPES: Record<string, string> = {
 const graph = new RecipeGraph(loadRecipes());
 
 function App() {
-  const match = window.location.pathname.match(
-    /^\/production-chains\/([a-zA-Z0-9]+)(?:\/([0-9]+))?$/
-  );
-  const [ticker, setTicker] = useState(match?.[1].toUpperCase() ?? 'RAT');
+  const navigate = useNavigate();
+  const params = useParams();
+  const [ticker, setTicker] = useState(params.ticker ?? 'RAT');
   const [includeIntermediates, setIncludeIntermediates] = useState(false);
-  const [quantity, setQuantity] = useState(
-    match?.[2] ? parseInt(match?.[2]) : 1
-  );
+  const [quantity, setQuantity] = useState(parseInt(params.quantity ?? '1'));
   const [userSelectedRecipes, setUserSelectedRecipes] = useState<
     Record<string, string>
   >({});
@@ -90,9 +88,9 @@ function App() {
     }
 
     if (url.toString() !== window.location.href) {
-      window.history.pushState({}, '', url);
+      navigate(url.pathname + url.search);
     }
-  }, [ticker, quantity, userSelectedRecipes]);
+  }, [navigate, ticker, quantity, userSelectedRecipes]);
 
   const handleChange = (ticker: string, recipeName: string) => {
     if (DEFAULT_RECIPES[ticker] === recipeName) {
