@@ -85,7 +85,7 @@ function App() {
       selectedRecipes,
     });
     const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
-      needs: quantity,
+      quantity,
       selectedRecipes,
     });
     flow = <Flow nodes={nodes} edges={edges} />;

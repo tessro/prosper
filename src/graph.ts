@@ -38,22 +38,28 @@ interface GetDecisionsOptions {
   selectedRecipes: Record<string, string>;
 }
 
-interface FlowGraphProps {
-  needs: number;
-  depth: number;
-  y: number;
-  spread: number;
+interface FlowGraphOptions {
+  quantity: number;
   selectedRecipes: Record<string, string>;
   terminals: string[];
 }
 
+interface FlowGraphState {
+  depth: number;
+  y: number;
+  spread: number;
+}
+
 const FLOW_GRAPH_DEFAULTS = {
-  needs: 1,
+  quantity: 1,
+  selectedRecipes: {},
+  terminals: ['O'],
+};
+
+const FLOW_GRAPH_INITIAL_STATE = {
   depth: 0,
   y: 0,
   spread: 1000,
-  selectedRecipes: {},
-  terminals: ['O'],
 };
 
 // Never try to manufacture these
@@ -63,18 +69,6 @@ class Node {
   readonly recipes: Recipe[] = [];
 
   constructor(public readonly ticker: string) {}
-
-  private pickRecipe(props: FlowGraphProps): Recipe | undefined {
-    if (props.terminals.includes(this.ticker)) return;
-
-    if (props.selectedRecipes[this.ticker]) {
-      return this.recipes.find(
-        (r) => r.name === props.selectedRecipes[this.ticker]
-      );
-    }
-
-    return this.recipes[0];
-  }
 
   getDecisions(options: GetDecisionsOptions): Decision[] {
     let decisions: Decision[] = [];
@@ -149,16 +143,43 @@ class Node {
     }
   }
 
-  toFlow(props: FlowGraphProps = FLOW_GRAPH_DEFAULTS): FlowGraph {
-    const recipe = this.pickRecipe(props);
+  toFlow(options: FlowGraphOptions, state: FlowGraphState): FlowGraph {
+    if (options.terminals.includes(this.ticker)) {
+      return {
+        nodes: [
+          {
+            id: this.ticker,
+            type: 'recipe',
+            data: { ...this, quantity: options.quantity, building: '' },
+            position: {
+              x: 100 * state.depth,
+              y: state.y,
+            },
+            sourcePosition: Position.Right,
+            targetPosition: Position.Left,
+          },
+        ],
+        edges: [],
+      };
+    }
 
-    const node = {
+    const recipe = options.selectedRecipes[this.ticker]
+      ? this.recipes.find(
+          (r) => r.name === options.selectedRecipes[this.ticker]
+        )
+      : this.recipes[0];
+
+    const outputQuantity =
+      recipe?.outputs.find((o) => o.material.ticker === this.ticker)!
+        .quantity ?? 1;
+
+    const currentNode = {
       id: this.ticker,
       type: 'recipe',
-      data: { ...this, quantity: props.needs, building: recipe?.building },
+      data: { ...this, quantity: options.quantity, building: recipe?.building },
       position: {
-        x: 100 * props.depth,
-        y: props.y,
+        x: 100 * state.depth,
+        y: state.y,
       },
       sourcePosition: Position.Right,
       targetPosition: Position.Left,
@@ -167,15 +188,17 @@ class Node {
     const inputs = recipe?.inputs ?? [];
 
     const subgraph = inputs.map((i, ix) => {
-      return i.material.toFlow({
-        ...props,
-        needs:
-          (props.needs / (recipe?.outputs[0].quantity ?? 1)) *
-          (i.quantity ?? 1),
-        spread: Math.max(200, props.spread / 2),
-        depth: props.depth + 1,
-        y: props.y - props.spread / 2 + (ix * props.spread) / inputs.length,
-      });
+      return i.material.toFlow(
+        {
+          ...options,
+          quantity: (options.quantity / outputQuantity) * (i.quantity ?? 1),
+        },
+        {
+          spread: Math.max(200, state.spread / 2),
+          depth: state.depth + 1,
+          y: state.y - state.spread / 2 + (ix * state.spread) / inputs.length,
+        }
+      );
     });
     const edges = [
       ...inputs.map((i) => ({
@@ -186,7 +209,8 @@ class Node {
       ...subgraph.flatMap((i) => i.edges),
     ];
 
-    const nodes = [node, ...subgraph.flatMap((g) => g.nodes)];
+    const otherNodes = subgraph.flatMap((g) => g.nodes);
+    const allNodes = [currentNode, ...otherNodes];
 
     function filterToMaxDepth(nodes: FlowNode[]): FlowNode[] {
       const depths: Record<string, number> = {};
@@ -222,14 +246,16 @@ class Node {
     function uniqueEdges(edges: FlowEdge[]): FlowEdge[] {
       const cache: Set<string> = new Set();
       return edges.filter((edge) => {
-        if (cache.has(edge.id)) return false;
+        if (cache.has(edge.id)) {
+          return false;
+        }
         cache.add(edge.id);
         return true;
       });
     }
 
     return {
-      nodes: spaceEvenly(filterToMaxDepth(nodes)),
+      nodes: spaceEvenly(filterToMaxDepth(allNodes)),
       edges: uniqueEdges(edges),
     };
   }
@@ -282,10 +308,16 @@ export class RecipeGraph {
     return this.get(ticker).getInputs(options);
   }
 
-  getFlowGraph(ticker: string, props: Partial<FlowGraphProps> = {}): FlowGraph {
-    return this.get(ticker).toFlow({
-      ...FLOW_GRAPH_DEFAULTS,
-      ...props,
-    });
+  getFlowGraph(
+    ticker: string,
+    options: Partial<FlowGraphOptions> = {}
+  ): FlowGraph {
+    return this.get(ticker).toFlow(
+      {
+        ...FLOW_GRAPH_DEFAULTS,
+        ...options,
+      },
+      FLOW_GRAPH_INITIAL_STATE
+    );
   }
 }
