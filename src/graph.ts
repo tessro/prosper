@@ -144,48 +144,61 @@ class Node {
   }
 
   toFlow(options: FlowGraphOptions, state: FlowGraphState): FlowGraph {
+    const commonNodeProps = {
+      type: 'recipe',
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+    };
+
     if (this.recipes.length === 0 || options.terminals.includes(this.ticker)) {
       return {
         nodes: [
           {
+            ...commonNodeProps,
             id: this.ticker,
-            type: 'recipe',
-            data: { ...this, quantity: options.quantity, building: '' },
+            data: { ...this, quantity: options.quantity },
             position: {
               x: 100 * state.depth,
               y: state.y,
             },
-            sourcePosition: Position.Right,
-            targetPosition: Position.Left,
           },
         ],
         edges: [],
       };
     }
 
-    const recipe = options.selectedRecipes[this.ticker]
-      ? this.recipes.find(
-          (r) => r.name === options.selectedRecipes[this.ticker]
-        )
-      : this.recipes[0];
+    const recipe = (() => {
+      const selection = options.selectedRecipes[this.ticker];
 
-    const outputQuantity =
-      recipe?.outputs.find((o) => o.material.ticker === this.ticker)!
-        .quantity ?? 1;
+      if (selection) {
+        const recipe = this.recipes.find((r) => r.name === selection);
+        if (!recipe) {
+          throw new Error(
+            `selected recipe '${selection}' is not in recipe set for ${this.ticker}`
+          );
+        }
+
+        return recipe;
+      } else {
+        return this.recipes[0];
+      }
+    })();
+
+    const outputQuantity = recipe.outputs.find(
+      (o) => o.material === this
+    )!.quantity;
 
     const currentNode = {
+      ...commonNodeProps,
       id: this.ticker,
-      type: 'recipe',
-      data: { ...this, quantity: options.quantity, building: recipe?.building },
+      data: { ...this, quantity: options.quantity, building: recipe.building },
       position: {
         x: 100 * state.depth,
         y: state.y,
       },
-      sourcePosition: Position.Right,
-      targetPosition: Position.Left,
     };
 
-    const inputs = recipe?.inputs ?? [];
+    const inputs = recipe.inputs;
 
     const subgraph = inputs.map((i, ix) => {
       return i.material.toFlow(
@@ -205,9 +218,7 @@ class Node {
         id: `${this.ticker}-${i.material.ticker}`,
         source: this.ticker,
         target: i.material.ticker,
-        label:
-          Math.round((100 * i.quantity) / (recipe?.outputs[0].quantity ?? 1)) /
-          100,
+        label: Math.round((100 * i.quantity) / outputQuantity) / 100,
       })),
       ...subgraph.flatMap((i) => i.edges),
     ];

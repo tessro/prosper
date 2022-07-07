@@ -21,7 +21,7 @@ const baseNodeStyle = {
 export interface RecipeProps {
   quantity: number;
   ticker: string;
-  building: string;
+  building?: string;
 }
 
 type RecipeNodeProps = NodeProps<RecipeProps>;
