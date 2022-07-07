@@ -49,7 +49,8 @@ interface FlowGraphState {
   depth: number;
   y: number;
   spread: number;
-  quantities: Record<string, number>;
+  nodeQuantities: Record<string, number>;
+  edgeQuantities: Record<string, number>;
 }
 
 // Never try to manufacture these
@@ -59,13 +60,6 @@ const FLOW_GRAPH_DEFAULTS = {
   quantity: 1,
   selectedRecipes: {},
   terminals: TERMINALS,
-};
-
-const FLOW_GRAPH_INITIAL_STATE = {
-  depth: 0,
-  y: 0,
-  spread: 1000,
-  quantities: {},
 };
 
 class Node {
@@ -156,6 +150,8 @@ class Node {
       targetPosition: Position.Left,
     };
 
+    state.nodeQuantities[this.ticker] ??= 0;
+    state.nodeQuantities[this.ticker] += options.quantity;
     if (this.recipes.length === 0 || options.terminals.includes(this.ticker)) {
       return {
         nodes: [
@@ -226,12 +222,16 @@ class Node {
         id: `${this.ticker}-${i.material.ticker}`,
         source: this.ticker,
         target: i.material.ticker,
-        label:
-          Math.round(100 * ((i.quantity * options.quantity) / outputQuantity)) /
-          100,
       })),
       ...subgraph.flatMap((i) => i.edges),
     ];
+
+    for (const input of inputs) {
+      const id = `${this.ticker}-${input.material.ticker}`;
+      state.edgeQuantities[id] ??= 0;
+      state.edgeQuantities[id] +=
+        (input.quantity * options.quantity) / outputQuantity;
+    }
 
     const otherNodes = subgraph.flatMap((g) => g.nodes);
     const allNodes = [currentNode, ...otherNodes];
@@ -336,12 +336,30 @@ export class RecipeGraph {
     ticker: string,
     options: Partial<FlowGraphOptions> = {}
   ): FlowGraph {
-    return this.get(ticker).toFlow(
+    const state: FlowGraphState = {
+      depth: 0,
+      y: 0,
+      spread: 1000,
+      nodeQuantities: {},
+      edgeQuantities: {},
+    };
+
+    const flowData = this.get(ticker).toFlow(
       {
         ...FLOW_GRAPH_DEFAULTS,
         ...options,
       },
-      FLOW_GRAPH_INITIAL_STATE
+      state
     );
+
+    for (const node of flowData.nodes) {
+      node.data.quantity = state.nodeQuantities[node.id];
+    }
+
+    for (const edge of flowData.edges) {
+      edge.label = Math.round(100 * state.edgeQuantities[edge.id]) / 100;
+    }
+
+    return flowData;
   }
 }
