@@ -205,6 +205,9 @@ class Node {
         id: `${this.ticker}-${i.material.ticker}`,
         source: this.ticker,
         target: i.material.ticker,
+        label:
+          Math.round((100 * i.quantity) / (recipe?.outputs[0].quantity ?? 1)) /
+          100,
       })),
       ...subgraph.flatMap((i) => i.edges),
     ];
