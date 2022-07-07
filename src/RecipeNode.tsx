@@ -41,7 +41,6 @@ export default memo(({ data, isConnectable }: RecipeNodeProps) => {
         type="target"
         position={Position.Left}
         style={{ background: '#555' }}
-        onConnect={(params) => console.log('handle onConnect', params)}
         isConnectable={isConnectable}
       />
       <div>{Math.round(data.quantity * 100) / 100}</div>
