@@ -103,7 +103,9 @@ function App() {
       url.searchParams.delete('selectedRecipes');
     }
 
-    window.history.pushState({}, '', url);
+    if (url.toString() !== window.location.href) {
+      window.history.pushState({}, '', url);
+    }
   }, [ticker, quantity, userSelectedRecipes]);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

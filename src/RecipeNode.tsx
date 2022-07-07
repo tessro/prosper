@@ -36,7 +36,7 @@ export default memo(({ data, isConnectable }: RecipeNodeProps) => {
   };
 
   return (
-    <a href={`/production-chains/${data.ticker}`} style={nodeStyle}>
+    <a href={`/production-chains/${data.ticker}/1`} style={nodeStyle}>
       <Handle
         type="target"
         position={Position.Left}
