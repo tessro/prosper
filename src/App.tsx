@@ -3,9 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
 import './App.css';
 import { loadRecipes } from './fio';
-import { RecipeGraph, Decision, Ingredient } from './graph';
-import { MaterialDatabase } from './MaterialDatabase';
+import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
+import { Sidebar } from './Sidebar';
 
 const fitViewOptions: FitViewOptions = {
   padding: 0.2,
@@ -60,8 +60,6 @@ function App() {
   const [quantity, setQuantity] = useState(
     match?.[2] ? parseInt(match?.[2]) : 1
   );
-  const materials = MaterialDatabase.default();
-
   const [userSelectedRecipes, setUserSelectedRecipes] = useState<
     Record<string, string>
   >({});
@@ -74,22 +72,10 @@ function App() {
     [userSelectedRecipes]
   );
 
-  const decisions = graph.getDecisions(ticker, {
-    selectedRecipes,
-  });
-  const inputs = graph.getInputs(ticker, {
+  const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
     quantity,
     selectedRecipes,
-    includeIntermediates,
   });
-  const { nodes, edges } = useMemo(
-    () =>
-      graph.getFlowGraph(ticker.toUpperCase(), {
-        quantity,
-        selectedRecipes,
-      }),
-    [graph, ticker, quantity, selectedRecipes]
-  );
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -108,9 +94,7 @@ function App() {
     }
   }, [ticker, quantity, userSelectedRecipes]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const ticker = e.target.name;
-    const recipeName = e.target.value;
+  const handleChange = (ticker: string, recipeName: string) => {
     if (DEFAULT_RECIPES[ticker] === recipeName) {
       const { [ticker]: _, ...rest } = userSelectedRecipes;
       setUserSelectedRecipes({ ...rest });
@@ -122,84 +106,30 @@ function App() {
     }
   };
 
-  const handleMaterialChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setTicker(e.target.value);
+  const handleTickerChange = (ticker: string) => {
+    setTicker(ticker);
   };
 
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuantity(parseInt(e.target.value));
+  const handleQuantityChange = (quantity: number) => {
+    setQuantity(quantity);
   };
 
-  const handleIncludeIntermediatesChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setIncludeIntermediates(e.target.checked);
+  const handleIncludeIntermediatesChange = (includeIntermediates: boolean) => {
+    setIncludeIntermediates(includeIntermediates);
   };
 
   return (
     <div className="App" style={{ width: '100vw', height: '100vh' }}>
-      <div
-        style={{
-          width: 280,
-          textAlign: 'left',
-          position: 'fixed',
-          zIndex: 10,
-          background: 'rgba(255, 255, 255, 0.8)',
-          padding: 5,
-        }}
-      >
-        <div>
-          <select defaultValue={ticker} onChange={handleMaterialChange}>
-            {materials.all().map((m) => (
-              <option key={m.ticker} value={m.ticker}>
-                {m.ticker} ({m.name})
-              </option>
-            ))}
-          </select>
-          Output quantity:{' '}
-          <input
-            type="number"
-            style={{ width: 60 }}
-            defaultValue={quantity}
-            onChange={handleQuantityChange}
-          />
-          <div>
-            <input
-              id="includeIntermediates"
-              type="checkbox"
-              onChange={handleIncludeIntermediatesChange}
-            />{' '}
-            <label htmlFor="includeIntermediates">Include intermediates</label>
-          </div>
-        </div>
-        {includeIntermediates ? 'All' : 'Raw'} inputs:
-        <ul style={{ margin: 0 }}>
-          {inputs.map((i, ix) => (
-            <li key={ix}>
-              {Math.round(100 * i.quantity) / 100} {i.material.ticker}
-            </li>
-          ))}
-        </ul>
-        Recipes:
-        <ul style={{ margin: 0 }}>
-          {decisions.map((d, ix) => (
-            <li key={d.material.ticker}>
-              {d.material.ticker}:&nbsp;
-              <select
-                name={d.material.ticker}
-                onChange={handleChange}
-                defaultValue={selectedRecipes[d.material.ticker]}
-              >
-                {d.recipes.map((recipe) => (
-                  <option key={recipe.name} value={recipe.name}>
-                    {recipe.name}
-                  </option>
-                ))}
-              </select>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Sidebar
+        ticker={ticker}
+        quantity={quantity}
+        includeIntermediates={includeIntermediates}
+        selectedRecipes={selectedRecipes}
+        onTickerChange={handleTickerChange}
+        onQuantityChange={handleQuantityChange}
+        onIncludeIntermediatesChange={handleIncludeIntermediatesChange}
+        onRecipeChange={handleChange}
+      />
       <Flow nodes={nodes} edges={edges} />
     </div>
   );
