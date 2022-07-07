@@ -4,9 +4,10 @@ import {
   Position,
 } from 'react-flow-renderer';
 import type { Recipe as FioRecipe } from './fio';
+import { RecipeProps } from './RecipeNode';
 
 interface FlowGraph {
-  nodes: FlowNode[];
+  nodes: FlowNode<RecipeProps>[];
   edges: FlowEdge[];
 }
 
@@ -154,7 +155,7 @@ class Node {
     const node = {
       id: this.ticker,
       type: 'recipe',
-      data: { ...this, needs: props.needs, selectedRecipe: recipe },
+      data: { ...this, quantity: props.needs, building: recipe?.building },
       position: {
         x: 100 * props.depth,
         y: props.y,

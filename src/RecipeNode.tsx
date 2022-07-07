@@ -18,11 +18,10 @@ const baseNodeStyle = {
   textDecoration: 'none',
 };
 
-interface RecipeProps {
-  needs: number;
+export interface RecipeProps {
+  quantity: number;
   ticker: string;
-  recipes: any[];
-  selectedRecipe: any;
+  building: string;
 }
 
 type RecipeNodeProps = NodeProps<RecipeProps>;
@@ -45,11 +44,11 @@ export default memo(({ data, isConnectable }: RecipeNodeProps) => {
         onConnect={(params) => console.log('handle onConnect', params)}
         isConnectable={isConnectable}
       />
-      <div>{Math.round(data.needs * 100) / 100}</div>
+      <div>{Math.round(data.quantity * 100) / 100}</div>
       <div>
         <strong>{data.ticker}</strong>
       </div>
-      <div>{data.selectedRecipe?.building}</div>
+      <div>{data.building}</div>
       <Handle
         type="source"
         position={Position.Right}
