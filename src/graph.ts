@@ -50,10 +50,13 @@ interface FlowGraphState {
   spread: number;
 }
 
+// Never try to manufacture these
+const TERMINALS = ['O'];
+
 const FLOW_GRAPH_DEFAULTS = {
   quantity: 1,
   selectedRecipes: {},
-  terminals: ['O'],
+  terminals: TERMINALS,
 };
 
 const FLOW_GRAPH_INITIAL_STATE = {
@@ -61,9 +64,6 @@ const FLOW_GRAPH_INITIAL_STATE = {
   y: 0,
   spread: 1000,
 };
-
-// Never try to manufacture these
-const TERMINALS = ['O'];
 
 class Node {
   readonly recipes: Recipe[] = [];
@@ -144,7 +144,7 @@ class Node {
   }
 
   toFlow(options: FlowGraphOptions, state: FlowGraphState): FlowGraph {
-    if (options.terminals.includes(this.ticker)) {
+    if (this.recipes.length === 0 || options.terminals.includes(this.ticker)) {
       return {
         nodes: [
           {
