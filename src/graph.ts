@@ -31,6 +31,7 @@ interface Recipe {
 
 interface GetInputsOptions {
   quantity?: number;
+  includeIntermediates?: boolean;
   selectedRecipes: Record<string, string>;
 }
 
@@ -48,6 +49,7 @@ interface FlowGraphState {
   depth: number;
   y: number;
   spread: number;
+  quantities: Record<string, number>;
 }
 
 // Never try to manufacture these
@@ -63,6 +65,7 @@ const FLOW_GRAPH_INITIAL_STATE = {
   depth: 0,
   y: 0,
   spread: 1000,
+  quantities: {},
 };
 
 class Node {
@@ -118,17 +121,18 @@ class Node {
       const outputQuantity = recipe.outputs.find(
         (o) => o.material.ticker === this.ticker
       )!.quantity;
+      const orderSize = (options.quantity ?? 1) / outputQuantity;
 
       const inputs = recipe.inputs.flatMap((input) =>
-        input.material
-          .getInputs({ ...options, quantity: 1 })
-          .map((ingredient) => ({
-            ...ingredient,
-            quantity:
-              (quantity * (ingredient.quantity * input.quantity)) /
-              outputQuantity,
-          }))
+        input.material.getInputs({
+          ...options,
+          quantity: orderSize * input.quantity,
+        })
       );
+
+      if (options.includeIntermediates) {
+        inputs.push({ quantity, material: this });
+      }
 
       const quantities: Record<string, Ingredient> = {};
       for (const input of inputs) {
@@ -139,7 +143,9 @@ class Node {
         }
       }
 
-      return Object.keys(quantities).map((ticker) => quantities[ticker]);
+      return Object.keys(quantities)
+        .sort()
+        .map((ticker) => quantities[ticker]);
     }
   }
 
@@ -207,6 +213,7 @@ class Node {
           quantity: i.quantity * (options.quantity / outputQuantity),
         },
         {
+          ...state,
           spread: Math.max(200, state.spread / 2),
           depth: state.depth + 1,
           y: state.y - state.spread / 2 + (ix * state.spread) / inputs.length,
@@ -235,7 +242,7 @@ class Node {
       for (const node of nodes) {
         depths[node.id] ??= node.position.x;
         quantities[node.id] ??= 0;
-        quantities[node.id] += node.data.needs;
+        quantities[node.id] += node.data.quantity;
         if (node.position.x > depths[node.id]) {
           depths[node.id] = node.position.x;
         }
@@ -244,7 +251,7 @@ class Node {
       return nodes
         .filter((node) => node.position.x === depths[node.id])
         .map((n) => {
-          n.data.needs = quantities[n.id];
+          n.data.quantity = quantities[n.id];
           return n;
         });
     }

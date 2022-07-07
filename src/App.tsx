@@ -54,6 +54,7 @@ function App() {
     /^\/production-chains\/([a-zA-Z0-9]+)(?:\/([0-9]+))?$/
   );
   const [ticker, setTicker] = useState(match?.[1].toUpperCase() ?? 'RAT');
+  const [includeIntermediates, setIncludeIntermediates] = useState(false);
   const [quantity, setQuantity] = useState(
     match?.[2] ? parseInt(match?.[2]) : 1
   );
@@ -83,6 +84,7 @@ function App() {
     inputs = graph.getInputs(ticker, {
       quantity,
       selectedRecipes,
+      includeIntermediates,
     });
     const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
       quantity,
@@ -130,6 +132,12 @@ function App() {
     setQuantity(parseInt(e.target.value));
   };
 
+  const handleIncludeIntermediatesChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setIncludeIntermediates(e.target.checked);
+  };
+
   return (
     <div className="App" style={{ width: '100vw', height: '100vh' }}>
       <div
@@ -157,8 +165,16 @@ function App() {
             defaultValue={quantity}
             onChange={handleQuantityChange}
           />
+          <div>
+            <input
+              id="includeIntermediates"
+              type="checkbox"
+              onChange={handleIncludeIntermediatesChange}
+            />{' '}
+            <label htmlFor="includeIntermediates">Include intermediates</label>
+          </div>
         </div>
-        Raw inputs:
+        {includeIntermediates ? 'All' : 'Raw'} inputs:
         <ul style={{ margin: 0 }}>
           {inputs.map((i, ix) => (
             <li key={ix}>
