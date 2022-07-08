@@ -11,6 +11,7 @@
     "@types/node": "^16.11.43",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
+    "daisyui": "^2.18.1",
     "jsoncrush": "^1.1.6",
     "ky": "^0.31.0",
     "react": "^18.2.0",
@@ -45,5 +46,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.1.5"
   }
 }
