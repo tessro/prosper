@@ -291,7 +291,7 @@ export class RecipeGraph {
   constructor(recipes: FioRecipe[]) {
     for (const recipe of recipes) {
       for (const output of recipe.outputs) {
-        const node = (this.roots[output.ticker] ??= new Node(output.ticker));
+        const node = this.getOrCreate(output.ticker);
 
         node.recipes.push({
           ...recipe,

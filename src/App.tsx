@@ -70,7 +70,7 @@ function App() {
     [userSelectedRecipes]
   );
 
-  const { nodes, edges } = graph.getFlowGraph(ticker.toUpperCase(), {
+  const { nodes, edges } = graph.getFlowGraph(ticker, {
     quantity,
     selectedRecipes,
   });
