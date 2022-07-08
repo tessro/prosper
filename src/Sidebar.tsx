@@ -29,6 +29,7 @@ interface SidebarProps {
   onQuantityChange: (quantity: number) => void;
   selectedRecipes: Record<string, string>;
   onRecipeChange: (ticker: string, recipe: string) => void;
+  onSettingsClick: () => void;
 }
 
 export function Sidebar({
@@ -40,6 +41,7 @@ export function Sidebar({
   onIncludeIntermediatesChange,
   selectedRecipes: userSelectedRecipes,
   onRecipeChange,
+  onSettingsClick,
 }: SidebarProps) {
   const selectedRecipes: Record<string, string> = useMemo(
     () => ({
@@ -87,6 +89,7 @@ export function Sidebar({
         padding: 5,
       }}
     >
+      <button onClick={onSettingsClick}>Settings</button>
       <div>
         <select defaultValue={ticker} onChange={handleMaterialChange}>
           {materials.all().map((m) => (

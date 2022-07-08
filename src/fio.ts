@@ -1,3 +1,6 @@
+import ky from 'ky';
+import { z } from 'zod';
+
 import materials from './allmaterials.json';
 import recipes from './allrecipes.json';
 
@@ -220,4 +223,90 @@ export function loadRecipes(): Recipe[] {
   }
 
   return results;
+}
+
+const userStorageItemSchema = z.object({
+  MaterialId: z.string(),
+  MaterialName: z.string().nullable(),
+  MaterialTicker: z.string().nullable(),
+  MaterialCategory: z.string().nullable(),
+  MaterialWeight: z.number(),
+  MaterialVolume: z.number(),
+  MaterialAmount: z.number(),
+  MaterialValue: z.number(),
+  MaterialValueCurrency: z.string().nullable(),
+  Type: z.string(),
+  TotalWeight: z.number(),
+  TotalVolume: z.number(),
+});
+export type UserStorageItem = z.infer<typeof userStorageItemSchema>;
+
+const userStorageSchema = z.array(
+  z.object({
+    StorageItems: z.array(userStorageItemSchema),
+    AddressableId: z.string(),
+    FixedStore: z.boolean(),
+    Name: z.string().nullable(),
+    StorageId: z.string(),
+    Timestamp: z.string(),
+    Type: z.string(),
+    UserNameSubmitted: z.string(),
+    VolumeCapacity: z.number(),
+    VolumeLoad: z.number(),
+    WeightCapacity: z.number(),
+    WeightLoad: z.number(),
+  })
+);
+export type UserStorage = z.infer<typeof userStorageSchema>;
+
+export class FioClient {
+  private readonly api = ky.extend({
+    headers: {},
+    hooks: {
+      beforeRequest: [
+        (request) => {
+          const apiKey = getApiKey();
+          if (apiKey) {
+            request.headers.set('authorization', apiKey);
+          }
+        },
+      ],
+    },
+  });
+
+  async getUserStorage(): Promise<UserStorage> {
+    if (!this.username) {
+      return [];
+    }
+
+    const data = await this.api
+      .get(`https://rest.fnar.net/storage/${this.username}`)
+      .json();
+
+    return userStorageSchema.parse(data);
+  }
+
+  async getAllExchangeOrders(): Promise<any> {
+    return ky.get('https://rest.fnar.net/exchange/full');
+  }
+
+  private get username(): string | null {
+    return getUsername();
+  }
+}
+
+export function setUsername(username: string): void {
+  window.localStorage.setItem('prun:username', username);
+}
+
+export function getUsername(): string | null {
+  return window.localStorage.getItem('prun:username');
+}
+
+export function setApiKey(key: string): void {
+  window.localStorage.setItem('fio:apiKey', key);
+}
+
+export function getApiKey(): string | null {
+  return window.localStorage.getItem('fio:apiKey');
 }

@@ -6,6 +6,7 @@ import './App.css';
 import { loadRecipes } from './fio';
 import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
+import { SettingsPane } from './SettingsPane';
 import { Sidebar } from './Sidebar';
 
 const fitViewOptions: FitViewOptions = {
@@ -55,6 +56,7 @@ const graph = new RecipeGraph(loadRecipes());
 function App() {
   const navigate = useNavigate();
   const params = useParams();
+  const [showSettings, setShowSettings] = useState(false);
   const [ticker, setTicker] = useState(params.ticker?.toUpperCase() ?? 'RAT');
   const [includeIntermediates, setIncludeIntermediates] = useState(false);
   const [quantity, setQuantity] = useState(parseInt(params.quantity ?? '1'));
@@ -116,6 +118,14 @@ function App() {
     setIncludeIntermediates(includeIntermediates);
   };
 
+  const handleSettingsOpen = () => {
+    setShowSettings(true);
+  };
+
+  const handleSettingsClose = () => {
+    setShowSettings(false);
+  };
+
   return (
     <div className="App" style={{ width: '100vw', height: '100vh' }}>
       <Sidebar
@@ -127,7 +137,9 @@ function App() {
         onQuantityChange={handleQuantityChange}
         onIncludeIntermediatesChange={handleIncludeIntermediatesChange}
         onRecipeChange={handleChange}
+        onSettingsClick={handleSettingsOpen}
       />
+      {showSettings ? <SettingsPane onClose={handleSettingsClose} /> : <></>}
       <Flow nodes={nodes} edges={edges} />
     </div>
   );
