@@ -55,7 +55,7 @@ const graph = new RecipeGraph(loadRecipes());
 function App() {
   const navigate = useNavigate();
   const params = useParams();
-  const [ticker, setTicker] = useState(params.ticker ?? 'RAT');
+  const [ticker, setTicker] = useState(params.ticker?.toUpperCase() ?? 'RAT');
   const [includeIntermediates, setIncludeIntermediates] = useState(false);
   const [quantity, setQuantity] = useState(parseInt(params.quantity ?? '1'));
   const [userSelectedRecipes, setUserSelectedRecipes] = useState<
