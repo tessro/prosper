@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { loadRecipes } from './fio';
+import { loadRecipes, Workforce } from './fio';
 import { RecipeGraph } from './graph';
+import { BuildingDatabase } from './BuildingDatabase';
 import { MaterialDatabase } from './MaterialDatabase';
 
 const DEFAULT_RECIPES: Record<string, string> = {
@@ -18,7 +19,32 @@ const DEFAULT_RECIPES: Record<string, string> = {
 };
 
 const graph = new RecipeGraph(loadRecipes());
+const buildings = BuildingDatabase.default();
 const materials = MaterialDatabase.default();
+
+function getTotalWorkforce(tickers: string[]): Workforce {
+  const bldgs = tickers.map((ticker) => buildings.findByTicker(ticker));
+
+  const result: Workforce = {
+    pioneers: 0,
+    settlers: 0,
+    technicians: 0,
+    engineers: 0,
+    scientists: 0,
+  };
+
+  for (const bldg of bldgs) {
+    if (bldg) {
+      result.pioneers += bldg.workforce.pioneers;
+      result.settlers += bldg.workforce.settlers;
+      result.technicians += bldg.workforce.technicians;
+      result.engineers += bldg.workforce.engineers;
+      result.scientists += bldg.workforce.scientists;
+    }
+  }
+
+  return result;
+}
 
 interface SidebarProps {
   ticker: string;
@@ -60,6 +86,7 @@ export function ProductionChainSidebar({
   const buildings = graph.getBuildings(ticker, {
     selectedRecipes,
   });
+  const workforce = getTotalWorkforce(buildings);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onRecipeChange(e.target.name, e.target.value);
@@ -153,6 +180,37 @@ export function ProductionChainSidebar({
               <td>{ticker}</td>
             </tr>
           ))}
+        </tbody>
+      </table>
+      <h1 className="text-lg font-bold mt-4 mb-1">Workforce</h1>
+      <table className="table table-compact w-full">
+        <thead>
+          <tr>
+            <td className="bg-base-300">Tier</td>
+            <td className="bg-base-300">Qty</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Pioneers</td>
+            <td>{workforce.pioneers}</td>
+          </tr>
+          <tr>
+            <td>Settlers</td>
+            <td>{workforce.settlers}</td>
+          </tr>
+          <tr>
+            <td>Technicians</td>
+            <td>{workforce.technicians}</td>
+          </tr>
+          <tr>
+            <td>Engineers</td>
+            <td>{workforce.engineers}</td>
+          </tr>
+          <tr>
+            <td>Scientists</td>
+            <td>{workforce.scientists}</td>
+          </tr>
         </tbody>
       </table>
       {decisions.length > 0 ? (
