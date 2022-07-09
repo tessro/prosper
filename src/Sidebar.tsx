@@ -80,67 +80,108 @@ export function Sidebar({
 
   return (
     <div
+      className="fixed z-10 bg-base-200 w-80 inset-y-4 left-4 rounded-lg shadow"
       style={{
-        width: 280,
         textAlign: 'left',
-        position: 'fixed',
-        zIndex: 10,
-        background: 'rgba(255, 255, 255, 0.8)',
-        padding: 5,
+        padding: 20,
       }}
     >
-      <button onClick={onSettingsClick}>Settings</button>
-      <div>
-        <select defaultValue={ticker} onChange={handleMaterialChange}>
+      <button className="btn" onClick={onSettingsClick}>
+        ⚙️ Settings
+      </button>
+      <div className="form-control my-2">
+        <label className="label" htmlFor="Sidebar/material">
+          <span className="label-text">Material</span>
+        </label>
+        <select
+          id="Sidebar/material"
+          className="select"
+          defaultValue={ticker}
+          onChange={handleMaterialChange}
+        >
           {materials.all().map((m) => (
             <option key={m.ticker} value={m.ticker}>
               {m.ticker} ({m.name})
             </option>
           ))}
         </select>
-        Output quantity:{' '}
+      </div>
+
+      <div className="form-control my-2">
+        <label className="label" htmlFor="Sidebar/quantity">
+          <span className="label-text">Quantity</span>
+        </label>
         <input
+          id="Sidebar/quantity"
           type="number"
-          style={{ width: 60 }}
+          className="input w-40"
           defaultValue={quantity}
           onChange={handleQuantityChange}
         />
-        <div>
+      </div>
+      <h1 className="text-lg font-bold mt-4">Inputs</h1>
+      <div className="form-control mb-1">
+        <label className="label cursor-pointer justify-start">
           <input
-            id="includeIntermediates"
             type="checkbox"
+            className="checkbox"
             onChange={handleIncludeIntermediatesChange}
           />{' '}
-          <label htmlFor="includeIntermediates">Include intermediates</label>
-        </div>
+          <span className="label-text ml-1">Include intermediate products</span>
+        </label>
       </div>
-      {includeIntermediates ? 'All' : 'Raw'} inputs:
-      <ul style={{ margin: 0 }}>
-        {inputs.map((i, ix) => (
-          <li key={ix}>
-            {Math.round(100 * i.quantity) / 100} {i.material.ticker}
-          </li>
-        ))}
-      </ul>
-      Recipes:
-      <ul style={{ margin: 0 }}>
-        {decisions.map((d, ix) => (
-          <li key={d.material.ticker}>
-            {d.material.ticker}:&nbsp;
-            <select
-              name={d.material.ticker}
-              onChange={handleChange}
-              defaultValue={selectedRecipes[d.material.ticker]}
-            >
-              {d.recipes.map((recipe) => (
-                <option key={recipe.name} value={recipe.name}>
-                  {recipe.name}
-                </option>
+      <table className="table table-compact w-full">
+        <thead>
+          <tr>
+            <td className="bg-base-300">Qty</td>
+            <td className="bg-base-300">Material</td>
+          </tr>
+        </thead>
+        <tbody>
+          {inputs.map((i, ix) => (
+            <tr key={ix}>
+              <td>{Math.round(100 * i.quantity) / 100}</td>
+              <td>{i.material.ticker}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {decisions.length > 0 ? (
+        <>
+          <h1 className="text-lg font-bold mt-4 mb-1">Recipe choices</h1>
+          <table className="table table-compact w-full">
+            <thead>
+              <tr>
+                <td className="bg-base-300">Mat.</td>
+                <td className="bg-base-300 pl-5">Recipe</td>
+              </tr>
+            </thead>
+            <tbody>
+              {decisions.map((d, ix) => (
+                <tr key={d.material.ticker}>
+                  <td>{d.material.ticker}</td>
+                  <td>
+                    <select
+                      name={d.material.ticker}
+                      className="select select-sm w-full leading-none"
+                      onChange={handleChange}
+                      defaultValue={selectedRecipes[d.material.ticker]}
+                    >
+                      {d.recipes.map((recipe) => (
+                        <option key={recipe.name} value={recipe.name}>
+                          {recipe.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
               ))}
-            </select>
-          </li>
-        ))}
-      </ul>
+            </tbody>
+          </table>
+        </>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
