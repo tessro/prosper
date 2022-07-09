@@ -2,7 +2,6 @@ import JSONCrush from 'jsoncrush';
 import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
 import { useNavigate, useParams } from 'react-router-dom';
-import './App.css';
 import { loadRecipes } from './fio';
 import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
@@ -127,7 +126,7 @@ function App() {
   };
 
   return (
-    <div className="App" style={{ width: '100vw', height: '100vh' }}>
+    <div style={{ width: '100vw', height: '100vh' }}>
       <Sidebar
         ticker={ticker}
         quantity={quantity}
