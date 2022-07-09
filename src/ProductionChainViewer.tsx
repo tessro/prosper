@@ -5,7 +5,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { loadRecipes } from './fio';
 import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
-import { SettingsPane } from './SettingsPane';
 import { Sidebar } from './Sidebar';
 
 const fitViewOptions: FitViewOptions = {
