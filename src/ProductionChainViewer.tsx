@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { loadRecipes } from './fio';
 import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
-import { Sidebar } from './Sidebar';
+import { ProductionChainSidebar } from './ProductionChainSidebar';
 
 const fitViewOptions: FitViewOptions = {
   padding: 0.2,
@@ -117,7 +117,7 @@ export default function ProductionChainViewer() {
 
   return (
     <div className="w-screen h-screen">
-      <Sidebar
+      <ProductionChainSidebar
         ticker={ticker}
         quantity={quantity}
         includeIntermediates={includeIntermediates}

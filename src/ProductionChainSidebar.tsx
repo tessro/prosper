@@ -31,7 +31,7 @@ interface SidebarProps {
   onRecipeChange: (ticker: string, recipe: string) => void;
 }
 
-export function Sidebar({
+export function ProductionChainSidebar({
   ticker,
   quantity,
   includeIntermediates,
