@@ -57,6 +57,9 @@ export function ProductionChainSidebar({
     selectedRecipes,
     includeIntermediates,
   });
+  const buildings = graph.getBuildings(ticker, {
+    selectedRecipes,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onRecipeChange(e.target.name, e.target.value);
@@ -131,6 +134,23 @@ export function ProductionChainSidebar({
             <tr key={ix}>
               <td>{Math.round(100 * i.quantity) / 100}</td>
               <td>{i.material.ticker}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <h1 className="text-lg font-bold mt-4">Buildings</h1>
+      <table className="table table-compact w-full">
+        <thead>
+          <tr>
+            <td className="bg-base-300">Qty</td>
+            <td className="bg-base-300">Building</td>
+          </tr>
+        </thead>
+        <tbody>
+          {buildings.map((ticker) => (
+            <tr key={ticker}>
+              <td>1</td>
+              <td>{ticker}</td>
             </tr>
           ))}
         </tbody>

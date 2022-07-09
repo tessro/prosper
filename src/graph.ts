@@ -29,6 +29,10 @@ interface Recipe {
   inputs: Ingredient[];
 }
 
+interface GetBuildingsOptions {
+  selectedRecipes: Record<string, string>;
+}
+
 interface GetInputsOptions {
   quantity?: number;
   includeIntermediates?: boolean;
@@ -94,6 +98,29 @@ class Node {
       }
       return false;
     });
+  }
+
+  getBuildings(options: GetBuildingsOptions): string[] {
+    if (this.recipes.length === 0 || TERMINALS.includes(this.ticker)) {
+      return [];
+    } else {
+      const recipe =
+        this.recipes.find(
+          (r) => r.name === options.selectedRecipes[this.ticker]
+        ) ?? this.recipes[0];
+
+      if (!recipe) {
+        throw new Error(
+          `Selection required for '${this.ticker}': multiple recipes available`
+        );
+      }
+
+      const inputBuildings = recipe.inputs
+        .flatMap((input) => input.material.getBuildings(options))
+        .concat(recipe.building);
+
+      return [...new Set(inputBuildings)];
+    }
   }
 
   getInputs(options: GetInputsOptions): Ingredient[] {
@@ -326,6 +353,10 @@ export class RecipeGraph {
         ...options,
       })
       .sort((a, b) => a.material.ticker.localeCompare(b.material.ticker));
+  }
+
+  getBuildings(ticker: string, options: GetBuildingsOptions): string[] {
+    return this.get(ticker).getBuildings(options);
   }
 
   getInputs(ticker: string, options: GetInputsOptions): Ingredient[] {
