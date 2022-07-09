@@ -8,8 +8,8 @@ import { SettingsPane } from './SettingsPane';
 export default function App() {
   const [showSettings, setShowSettings] = useState(false);
 
-  const handleSettingsOpen = () => {
-    setShowSettings(true);
+  const handleSettingsClick = () => {
+    setShowSettings(!showSettings);
   };
 
   const handleSettingsClose = () => {
@@ -20,7 +20,7 @@ export default function App() {
     <OrderBookProvider>
       <div>
         {showSettings ? <SettingsPane onClose={handleSettingsClose} /> : <></>}
-        <Nav onSettingsClick={handleSettingsOpen} />
+        <Nav onSettingsClick={handleSettingsClick} />
         <Outlet />
       </div>
     </OrderBookProvider>
