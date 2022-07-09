@@ -3,6 +3,7 @@ import { RecipeGraph } from './graph';
 import {
   BuildingDatabase,
   MaterialDatabase,
+  RecipeDatabase,
   Workforce,
   loadRecipes,
   getNeeds,
@@ -25,6 +26,7 @@ const DEFAULT_RECIPES: Record<string, string> = {
 const graph = new RecipeGraph(loadRecipes());
 const buildings = BuildingDatabase.default();
 const materials = MaterialDatabase.default();
+const recipes = RecipeDatabase.default();
 
 function getTotalWorkforce(tickers: string[]): Workforce {
   const bldgs = tickers.map((ticker) => buildings.findByTicker(ticker));
@@ -222,15 +224,15 @@ export function ProductionChainSidebar({
       <table className="table table-compact w-full">
         <thead>
           <tr>
-            <td className="bg-base-300">Qty</td>
             <td className="bg-base-300">Material</td>
+            <td className="bg-base-300">Qty/d</td>
           </tr>
         </thead>
         <tbody>
           {Object.keys(needs).map((ticker) => (
             <tr key={ticker}>
-              <td>{Math.round(100 * needs[ticker]) / 100}</td>
               <td>{ticker}</td>
+              <td>{Math.round(100 * needs[ticker]) / 100}</td>
             </tr>
           ))}
         </tbody>
