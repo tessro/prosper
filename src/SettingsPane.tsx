@@ -14,17 +14,7 @@ export function SettingsPane({ onClose }: SettingsPaneProps) {
   };
 
   return (
-    <div
-      className="card card-compact w-96 bg-base-300 shadow-x1"
-      style={{
-        textAlign: 'left',
-        position: 'fixed',
-        left: 10,
-        top: 10,
-        zIndex: 10,
-        padding: 5,
-      }}
-    >
+    <div className="card card-compact w-96 bg-base-300 shadow-xl fixed top-20 right-5 z-10">
       <div className="card-body">
         <div className="card-title">
           Settings

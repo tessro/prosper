@@ -52,10 +52,9 @@ const DEFAULT_RECIPES: Record<string, string> = {
 
 const graph = new RecipeGraph(loadRecipes());
 
-function App() {
+export default function ProductionChainViewer() {
   const navigate = useNavigate();
   const params = useParams();
-  const [showSettings, setShowSettings] = useState(false);
   const [ticker, setTicker] = useState(params.ticker?.toUpperCase() ?? 'RAT');
   const [includeIntermediates, setIncludeIntermediates] = useState(false);
   const [quantity, setQuantity] = useState(parseInt(params.quantity ?? '1'));
@@ -117,16 +116,8 @@ function App() {
     setIncludeIntermediates(includeIntermediates);
   };
 
-  const handleSettingsOpen = () => {
-    setShowSettings(true);
-  };
-
-  const handleSettingsClose = () => {
-    setShowSettings(false);
-  };
-
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div className="w-screen h-screen">
       <Sidebar
         ticker={ticker}
         quantity={quantity}
@@ -136,12 +127,8 @@ function App() {
         onQuantityChange={handleQuantityChange}
         onIncludeIntermediatesChange={handleIncludeIntermediatesChange}
         onRecipeChange={handleChange}
-        onSettingsClick={handleSettingsOpen}
       />
-      {showSettings ? <SettingsPane onClose={handleSettingsClose} /> : <></>}
       <Flow nodes={nodes} edges={edges} />
     </div>
   );
 }
-
-export default App;

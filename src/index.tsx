@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
+import App from './App';
 import ProductionChainViewer from './ProductionChainViewer';
 import Inventory from './Inventory';
 import reportWebVitals from './reportWebVitals';
@@ -13,11 +14,16 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/production-chains">
-          <Route index element={<ProductionChainViewer />} />
-          <Route path=":ticker" element={<ProductionChainViewer />} />
-          <Route path=":ticker/:quantity" element={<ProductionChainViewer />} />
+        <Route path="/" element={<App />}>
+          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/production-chains">
+            <Route index element={<ProductionChainViewer />} />
+            <Route path=":ticker" element={<ProductionChainViewer />} />
+            <Route
+              path=":ticker/:quantity"
+              element={<ProductionChainViewer />}
+            />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

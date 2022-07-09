@@ -29,7 +29,6 @@ interface SidebarProps {
   onQuantityChange: (quantity: number) => void;
   selectedRecipes: Record<string, string>;
   onRecipeChange: (ticker: string, recipe: string) => void;
-  onSettingsClick: () => void;
 }
 
 export function Sidebar({
@@ -41,7 +40,6 @@ export function Sidebar({
   onIncludeIntermediatesChange,
   selectedRecipes: userSelectedRecipes,
   onRecipeChange,
-  onSettingsClick,
 }: SidebarProps) {
   const selectedRecipes: Record<string, string> = useMemo(
     () => ({
@@ -79,16 +77,7 @@ export function Sidebar({
   };
 
   return (
-    <div
-      className="fixed z-10 bg-base-200 w-80 inset-y-4 left-4 rounded-lg shadow"
-      style={{
-        textAlign: 'left',
-        padding: 20,
-      }}
-    >
-      <button className="btn" onClick={onSettingsClick}>
-        ⚙️ Settings
-      </button>
+    <div className="fixed z-10 bg-base-200 w-80 top-20 bottom-4 left-3 rounded-lg shadow p-4">
       <div className="form-control my-2">
         <label className="label" htmlFor="Sidebar/material">
           <span className="label-text">Material</span>
