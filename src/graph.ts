@@ -3,7 +3,7 @@ import {
   Edge as FlowEdge,
   Position,
 } from 'react-flow-renderer';
-import type { Recipe as FioRecipe } from './fio';
+import type { Recipe as FioRecipe } from './data';
 import { RecipeProps } from './RecipeNode';
 
 interface FlowGraph {

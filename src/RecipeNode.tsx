@@ -2,7 +2,7 @@ import { memo } from 'react';
 
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
 
-import { MaterialDatabase } from './MaterialDatabase';
+import { MaterialDatabase } from './data';
 
 const materials = MaterialDatabase.default();
 

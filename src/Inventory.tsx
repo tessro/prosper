@@ -1,6 +1,6 @@
 import { useContext, useMemo, useState } from 'react';
 
-import { FioClient, UserStorage, UserStorageItem } from './fio';
+import { FioClient, UserStorage, UserStorageItem } from './data';
 import { OrderBookContext } from './contexts/OrderBookContext';
 
 async function fetchInventory(): Promise<UserStorage> {

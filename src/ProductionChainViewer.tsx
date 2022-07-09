@@ -2,7 +2,7 @@ import JSONCrush from 'jsoncrush';
 import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
 import { useNavigate, useParams } from 'react-router-dom';
-import { loadRecipes } from './fio';
+import { loadRecipes } from './data';
 import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
 import { ProductionChainSidebar } from './ProductionChainSidebar';

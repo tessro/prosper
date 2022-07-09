@@ -1,6 +1,6 @@
 import { createContext, useState, PropsWithChildren, useMemo } from 'react';
 
-import { FioClient, OrderBook } from '../fio';
+import { FioClient, OrderBook } from '../data';
 
 export const OrderBookContext = createContext<OrderBook | null>(null);
 

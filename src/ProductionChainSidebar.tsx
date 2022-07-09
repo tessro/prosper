@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
-import { loadRecipes, Workforce } from './fio';
 import { RecipeGraph } from './graph';
-import { BuildingDatabase } from './BuildingDatabase';
-import { MaterialDatabase } from './MaterialDatabase';
+import {
+  BuildingDatabase,
+  MaterialDatabase,
+  Workforce,
+  loadRecipes,
+} from './data';
 
 const DEFAULT_RECIPES: Record<string, string> = {
   AL: '6xALO 1xC 1xO=>3xAL',

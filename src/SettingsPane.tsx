@@ -1,4 +1,4 @@
-import { getApiKey, setApiKey, getUsername, setUsername } from './fio';
+import { getApiKey, setApiKey, getUsername, setUsername } from './data';
 
 interface SettingsPaneProps {
   onClose: () => void;
