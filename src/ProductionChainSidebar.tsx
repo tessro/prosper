@@ -138,7 +138,7 @@ export function ProductionChainSidebar({
           ))}
         </tbody>
       </table>
-      <h1 className="text-lg font-bold mt-4">Buildings</h1>
+      <h1 className="text-lg font-bold mt-4 mb-1">Buildings</h1>
       <table className="table table-compact w-full">
         <thead>
           <tr>
