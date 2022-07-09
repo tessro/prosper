@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { FioClient, UserStorage, UserStorageItem } from './fio';
 
-async function fetchInventory(): Promise<any> {
+async function fetchInventory(): Promise<UserStorage> {
   const client = new FioClient();
   return client.getUserStorage();
 }
@@ -72,7 +72,7 @@ export default function Inventory() {
   console.log(inventory);
 
   return (
-    <div>
+    <div className="pt-20 p-4">
       {inventory.map((location) => (
         <StorageLocation
           name={location.Name}
