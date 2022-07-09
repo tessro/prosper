@@ -46,6 +46,7 @@ export function SettingsPane({ onClose }: SettingsPaneProps) {
             id="settings/username"
             className="input"
             autoComplete="off"
+            placeholder="Your Prosperous Universe username"
             defaultValue={getUsername() ?? ''}
             onChange={handleUsernameChange}
           />
@@ -59,9 +60,15 @@ export function SettingsPane({ onClose }: SettingsPaneProps) {
             id="settings/apiKey"
             className="input"
             autoComplete="off"
+            placeholder="An API key from fio.fnar.net"
             defaultValue={getApiKey() ? '***' : ''}
             onChange={handleApiKeyChange}
           />
+          <label className="label">
+            <span className="label-text-alt">
+              Stored in <code>localStorage</code> – never leaves your computer
+            </span>
+          </label>
         </div>
       </div>
     </div>
