@@ -45,7 +45,8 @@ export function getNeeds(workforce: Workforce): Record<string, number> {
     for (const ticker of Object.keys(workforceNeeds[type])) {
       if (workforce[type] > 0 && workforceNeeds[type][ticker] > 0) {
         results[ticker] ??= 0;
-        results[ticker] += workforce[type] * workforceNeeds[type][ticker];
+        results[ticker] +=
+          (workforce[type] / 100) * workforceNeeds[type][ticker];
       }
     }
   }
