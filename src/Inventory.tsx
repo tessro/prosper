@@ -97,7 +97,6 @@ export default function Inventory() {
   useMemo(() => {
     fetchInventory().then((inv) => setInventory(inv));
   }, []);
-  console.log(inventory);
 
   return (
     <div className="pt-20 p-4">
