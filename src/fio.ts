@@ -259,6 +259,55 @@ const userStorageSchema = z.array(
 );
 export type UserStorage = z.infer<typeof userStorageSchema>;
 
+const cxOrderSchema = z.object({
+  CompanyCode: z.string().nullable(),
+  CompanyId: z.string(),
+  CompanyName: z.string(),
+  ItemCost: z.number(),
+  ItemCount: z.number().nullable(),
+  OrderId: z.string(),
+});
+
+const cxMaterialSchema = z.object({
+  AllTimeHigh: z.number().nullable(),
+  AllTimeLow: z.number().nullable(),
+  Ask: z.number().nullable(),
+  AskCount: z.number().nullable(),
+  Bid: z.number().nullable(),
+  BidCount: z.number().nullable(),
+  BuyingOrders: z.array(cxOrderSchema),
+  CXDataModelId: z.string(),
+  Currency: z.string(),
+  Demand: z.number(),
+  ExchangeCode: z.string(),
+  ExchangeName: z.string(),
+  High: z.number().nullable(),
+  Low: z.number().nullable(),
+  MMBuy: z.number().nullable(),
+  MMSell: z.number().nullable(),
+  MaterialId: z.string(),
+  MaterialName: z.string(),
+  MaterialTicker: z.string(),
+  NarrowPriceBandHigh: z.number(),
+  NarrowPriceBandLow: z.number(),
+  Previous: z.number().nullable(),
+  Price: z.number().nullable(),
+  PriceAverage: z.number(),
+  PriceTimeEpochMs: z.number().nullable(),
+  SellingOrders: z.array(cxOrderSchema),
+  Supply: z.number(),
+  Timestamp: z.string(),
+  Traded: z.number(),
+  UserNameSubmitted: z.string(),
+  VolumeAmount: z.number(),
+  WidePriceBandHigh: z.number(),
+  WidePriceBandLow: z.number(),
+});
+type CxMaterial = z.infer<typeof cxMaterialSchema>;
+
+const cxExchangeFullSchema = z.array(cxMaterialSchema);
+export type OrderBook = z.infer<typeof cxExchangeFullSchema>;
+
 export class FioClient {
   private readonly api = ky.extend({
     headers: {},
@@ -286,8 +335,10 @@ export class FioClient {
     return userStorageSchema.parse(data);
   }
 
-  async getAllExchangeOrders(): Promise<any> {
-    return ky.get('https://rest.fnar.net/exchange/full');
+  async getAllExchangeOrders(): Promise<CxMaterial[]> {
+    const data = await ky.get('https://rest.fnar.net/exchange/full').json();
+
+    return cxExchangeFullSchema.parse(data);
   }
 
   private get username(): string | null {
