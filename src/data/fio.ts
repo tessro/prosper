@@ -1,5 +1,4 @@
 import ky from 'ky';
-import { WorkerPerformance } from 'worker_threads';
 import { z } from 'zod';
 
 import buildings from './allbuildings.json';
