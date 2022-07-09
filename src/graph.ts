@@ -119,7 +119,7 @@ class Node {
         .flatMap((input) => input.material.getBuildings(options))
         .concat(recipe.building);
 
-      return [...new Set(inputBuildings)];
+      return [...new Set(inputBuildings)].sort();
     }
   }
 
