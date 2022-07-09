@@ -5,6 +5,7 @@ import {
   MaterialDatabase,
   Workforce,
   loadRecipes,
+  getNeeds,
 } from './data';
 
 const DEFAULT_RECIPES: Record<string, string> = {
@@ -90,6 +91,7 @@ export function ProductionChainSidebar({
     selectedRecipes,
   });
   const workforce = getTotalWorkforce(buildings);
+  const needs = getNeeds(workforce);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onRecipeChange(e.target.name, e.target.value);
@@ -214,6 +216,23 @@ export function ProductionChainSidebar({
             <td>Scientists</td>
             <td>{workforce.scientists}</td>
           </tr>
+        </tbody>
+      </table>
+      <h1 className="text-lg font-bold mt-4 mb-1">Consumables</h1>
+      <table className="table table-compact w-full">
+        <thead>
+          <tr>
+            <td className="bg-base-300">Qty</td>
+            <td className="bg-base-300">Material</td>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.keys(needs).map((ticker) => (
+            <tr key={ticker}>
+              <td>{Math.round(100 * needs[ticker]) / 100}</td>
+              <td>{ticker}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
       {decisions.length > 0 ? (
