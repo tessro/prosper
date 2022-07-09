@@ -1,4 +1,4 @@
-import { createContext, useState, PropsWithChildren } from 'react';
+import { createContext, useState, PropsWithChildren, useMemo } from 'react';
 
 import { FioClient, OrderBook } from '../fio';
 
@@ -12,7 +12,9 @@ function fetchOrderBook() {
 export function OrderBookProvider({ children }: PropsWithChildren) {
   const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
 
-  fetchOrderBook().then((result) => setOrderBook(result));
+  useMemo(() => {
+    fetchOrderBook().then((result) => setOrderBook(result));
+  }, []);
 
   return (
     <OrderBookContext.Provider value={orderBook}>
