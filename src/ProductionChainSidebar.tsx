@@ -3,7 +3,6 @@ import { RecipeGraph } from './graph';
 import {
   BuildingDatabase,
   MaterialDatabase,
-  RecipeDatabase,
   Workforce,
   loadRecipes,
   getNeeds,
@@ -26,7 +25,6 @@ const DEFAULT_RECIPES: Record<string, string> = {
 const graph = new RecipeGraph(loadRecipes());
 const buildings = BuildingDatabase.default();
 const materials = MaterialDatabase.default();
-const recipes = RecipeDatabase.default();
 
 function getTotalWorkforce(tickers: string[]): Workforce {
   const bldgs = tickers.map((ticker) => buildings.findByTicker(ticker));
