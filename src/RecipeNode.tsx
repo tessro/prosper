@@ -2,9 +2,9 @@ import { memo } from 'react';
 
 import { Handle, NodeProps, Position } from 'react-flow-renderer';
 
-import { MaterialDatabase } from './data';
+import { MaterialRepository } from './data';
 
-const materials = MaterialDatabase.default();
+const materials = MaterialRepository.default();
 
 const baseNodeStyle = {
   height: 50,

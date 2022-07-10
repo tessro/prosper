@@ -1,11 +1,11 @@
 import { Material, loadMaterials } from './fio';
 
-export class MaterialDatabase {
+export class MaterialRepository {
   private readonly materials: Material[];
   private readonly byTicker: Record<string, Material> = {};
 
-  static default(): MaterialDatabase {
-    return new MaterialDatabase(loadMaterials());
+  static default(): MaterialRepository {
+    return new MaterialRepository(loadMaterials());
   }
 
   constructor(materials: Material[]) {

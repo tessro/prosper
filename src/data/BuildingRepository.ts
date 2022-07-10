@@ -49,12 +49,12 @@ export function loadBuildings(): Building[] {
   return results;
 }
 
-export class BuildingDatabase {
+export class BuildingRepository {
   private readonly buildings: Building[];
   private readonly byTicker: Record<string, Building> = {};
 
-  static default(): BuildingDatabase {
-    return new BuildingDatabase(loadBuildings());
+  static default(): BuildingRepository {
+    return new BuildingRepository(loadBuildings());
   }
 
   constructor(buildings: Building[]) {

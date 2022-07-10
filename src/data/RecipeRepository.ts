@@ -1,12 +1,12 @@
 import { Recipe, loadRecipes } from './fio';
 
-export class RecipeDatabase {
+export class RecipeRepository {
   private readonly recipes: Recipe[];
   private readonly byOutputTicker: Record<string, Recipe> = {};
   private readonly byName: Record<string, Recipe> = {};
 
-  static default(): RecipeDatabase {
-    return new RecipeDatabase(loadRecipes());
+  static default(): RecipeRepository {
+    return new RecipeRepository(loadRecipes());
   }
 
   constructor(recipes: Recipe[]) {

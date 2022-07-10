@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { RecipeGraph } from './graph';
 import {
-  BuildingDatabase,
-  MaterialDatabase,
+  BuildingRepository,
+  MaterialRepository,
   Workforce,
   loadRecipes,
   getNeeds,
@@ -23,8 +23,8 @@ const DEFAULT_RECIPES: Record<string, string> = {
 };
 
 const graph = new RecipeGraph(loadRecipes());
-const buildings = BuildingDatabase.default();
-const materials = MaterialDatabase.default();
+const buildings = BuildingRepository.default();
+const materials = MaterialRepository.default();
 
 function getTotalWorkforce(tickers: string[]): Workforce {
   const bldgs = tickers.map((ticker) => buildings.findByTicker(ticker));
