@@ -74,6 +74,7 @@ function StorageLocation({ name, type, inventory }: StorageLocationProps) {
             if (material.Type === 'INVENTORY') {
               return (
                 <Material
+                  key={material.MaterialTicker}
                   ticker={material.MaterialTicker}
                   name={material.MaterialName}
                   type={material.Type}
@@ -102,6 +103,7 @@ export default function Inventory() {
     <div className="pt-20 p-4">
       {inventory.map((location) => (
         <StorageLocation
+          key={location.StorageId}
           name={location.Name}
           type={location.Type}
           inventory={location.StorageItems}
