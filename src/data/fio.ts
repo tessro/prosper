@@ -225,6 +225,22 @@ export function loadRecipes(): Recipe[] {
   return results;
 }
 
+const userSitesSchema = z.array(
+  z.object({
+    Buildings: z.array(z.object({})),
+    InvestedPermits: z.number(),
+    MaximumPermits: z.number(),
+    PlanetFoundedEpochMs: z.number(),
+    PlanetId: z.string(),
+    PlanetIdentifier: z.string(),
+    PlanetName: z.string(),
+    SiteId: z.string(),
+    Timestamp: z.string(),
+    UserNameSubmitted: z.string(),
+  })
+);
+export type UserSites = z.infer<typeof userSitesSchema>;
+
 const userStorageItemSchema = z.object({
   MaterialId: z.string(),
   MaterialName: z.string().nullable(),
@@ -322,6 +338,18 @@ export class FioClient {
       ],
     },
   });
+
+  async getUserSites(): Promise<UserSites> {
+    if (!this.username) {
+      return [];
+    }
+
+    const data = await this.api
+      .get(`https://rest.fnar.net/sites/${this.username}`)
+      .json();
+
+    return userSitesSchema.parse(data);
+  }
 
   async getUserStorage(): Promise<UserStorage> {
     if (!this.username) {
