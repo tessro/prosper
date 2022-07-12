@@ -90,7 +90,9 @@ export class StorageRepository {
           unitWeight: item.TotalWeight / item.MaterialAmount,
           totalVolume: item.TotalVolume,
           totalWeight: item.TotalWeight,
-        })),
+        })).sort((a, b) =>
+          (a.ticker ?? a.type).localeCompare(b.ticker ?? b.type)
+        ),
       });
     }
 
