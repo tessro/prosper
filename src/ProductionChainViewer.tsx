@@ -67,7 +67,11 @@ export default function ProductionChainViewer() {
   const [quantity, setQuantity] = useState(parseInt(params.quantity ?? '1'));
   const [userSelectedRecipes, setUserSelectedRecipes] = useState<
     Record<string, string>
-  >({});
+  >(
+    query.has('selectedRecipes')
+      ? JSON.parse(JSONCrush.uncrush(query.get('selectedRecipes')!))
+      : {}
+  );
   const [terminals, setTerminals] = useState<string[]>(
     query.get('terminals')?.split(',') ?? DEFAULT_TERMINALS
   );
