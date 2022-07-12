@@ -13,8 +13,7 @@ import { OrderBookContext } from './contexts/OrderBookContext';
 
 function formatCurrency(amount: number, currency: string): string {
   const value = amount.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 0,
   });
   return `${value} ${currency}`;
 }
@@ -33,26 +32,18 @@ interface MaterialProps {
   quantity: number;
   weight: number;
   volume: number;
+  price: number;
+  currencyCode: string;
 }
 
-function Material({ ticker, quantity }: MaterialProps) {
-  const orderBook = useContext(OrderBookContext);
-  let cx;
-  if (orderBook) {
-    cx = orderBook.find(
-      (m) => m.MaterialTicker === ticker && m.ExchangeCode === 'IC1'
-    );
-  }
-
+function Material({ ticker, price, quantity, currencyCode }: MaterialProps) {
   return (
     <tr>
       <td className="text-right">{quantity}</td>
       <td>{ticker}</td>
+      <td className="text-right">{formatCurrency(price, currencyCode)}</td>
       <td className="text-right">
-        {cx && formatCurrency(cx.PriceAverage ?? 0, cx.Currency)}
-      </td>
-      <td className="text-right">
-        {cx && formatCurrency(quantity * (cx.PriceAverage ?? 0), cx.Currency)}
+        {formatCurrency(quantity * price, currencyCode)}
       </td>
     </tr>
   );
@@ -71,9 +62,23 @@ function Other({ type }: OtherProps) {
 }
 
 function StorageLocation({ store }: StorageLocationProps) {
+  const orderBook = useContext(OrderBookContext);
+  function findPriceInfo(ticker: string): any {
+    if (orderBook) {
+      return orderBook.find(
+        (m) => m.MaterialTicker === ticker && m.ExchangeCode === 'IC1'
+      );
+    }
+  }
+
+  const totalValue = store.items.reduce((total, item) => {
+    if (item.ticker)
+      total += item.quantity * (findPriceInfo(item.ticker).PriceAverage ?? 0);
+    return total;
+  }, 0);
   return (
     <div>
-      <table className="table bg-base-200">
+      <table className="table table-compact bg-base-200">
         <thead>
           <tr>
             <th>Qty</th>
@@ -94,6 +99,12 @@ function StorageLocation({ store }: StorageLocationProps) {
                   quantity={material.quantity}
                   weight={material.totalWeight}
                   volume={material.totalVolume}
+                  price={
+                    material.ticker
+                      ? findPriceInfo(material.ticker)?.PriceAverage ?? 0
+                      : 0
+                  }
+                  currencyCode={'ICA'}
                 />
               );
             } else {
@@ -101,6 +112,12 @@ function StorageLocation({ store }: StorageLocationProps) {
             }
           })}
         </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={3}>Total</td>
+            <td>{formatCurrency(totalValue, 'ICA')}</td>
+          </tr>
+        </tfoot>
       </table>
     </div>
   );
