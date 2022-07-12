@@ -4,7 +4,6 @@ import {
   FioClient,
   StationRepository,
   Store,
-  StoreItem,
   StorageRepository,
   UserShips,
   UserSites,
@@ -16,9 +15,7 @@ const client = new FioClient();
 const stations = StationRepository.default();
 
 interface StorageLocationProps {
-  name?: string;
-  type: string;
-  inventory: StoreItem[];
+  store: Store;
 }
 
 interface MaterialProps {
@@ -61,7 +58,7 @@ function Other({ type }: OtherProps) {
   );
 }
 
-function StorageLocation({ name, type, inventory }: StorageLocationProps) {
+function StorageLocation({ store }: StorageLocationProps) {
   return (
     <div>
       <table className="table bg-base-200">
@@ -74,7 +71,7 @@ function StorageLocation({ name, type, inventory }: StorageLocationProps) {
           </tr>
         </thead>
         <tbody>
-          {inventory.map((material) => {
+          {store.items.map((material) => {
             if (material.type === 'material') {
               return (
                 <Material
@@ -97,6 +94,21 @@ function StorageLocation({ name, type, inventory }: StorageLocationProps) {
   );
 }
 
+interface FuelTankProps {
+  type: 'ftl' | 'stl';
+  tank: Store;
+}
+
+function FuelTank({ type, tank }: FuelTankProps) {
+  const pct = (100 * tank.volume.used) / tank.volume.capacity;
+  return (
+    <div className="flex items-center space-x-1">
+      <div className="font-bold">{type.toUpperCase()}</div>
+      <progress className="progress w-40" value={pct} max="100"></progress>
+    </div>
+  );
+}
+
 interface ShipInventoryProps {
   ship: UserShips[number];
   hold?: Store | null;
@@ -108,31 +120,23 @@ function ShipInventory({ ship, hold, ftlTank, stlTank }: ShipInventoryProps) {
   return (
     <div>
       <div className="my-2 font-bold">🚀 {ship.Name}</div>
-      {hold && (
-        <StorageLocation
-          name={hold.name}
-          type={hold.type}
-          inventory={hold.items}
-        />
-      )}
+      {stlTank && <FuelTank type="stl" tank={stlTank} />}
+      {ftlTank && <FuelTank type="ftl" tank={ftlTank} />}
+      {hold && <StorageLocation store={hold} />}
     </div>
   );
 }
 
 interface SiteInventoryProps {
   site: UserSites[number];
-  inventory: Store[];
+  stores: Store[];
 }
 
-function SiteInventory({ site, inventory }: SiteInventoryProps) {
+function SiteInventory({ site, stores }: SiteInventoryProps) {
   return (
     <div>
       <div className="my-2 font-bold">🪐 {site.PlanetName}</div>
-      <StorageLocation
-        name={inventory[0].name}
-        type={inventory[0].type}
-        inventory={inventory[0].items}
-      />
+      <StorageLocation store={stores[0]} />
     </div>
   );
 }
@@ -150,16 +154,12 @@ function Warehouse({ inventory }: WarehouseProps) {
   return (
     <div>
       <div className="my-2 font-bold">📦 {displayName}</div>
-      <StorageLocation
-        name={inventory.name}
-        type={inventory.type}
-        inventory={inventory.items}
-      />
+      <StorageLocation store={inventory} />
     </div>
   );
 }
 
-export default function Inventory() {
+export default function InventoryViewer() {
   const [inventory, setInventory] = useState<UserStorage>([]);
   const [ships, setShips] = useState<UserShips>([]);
   const [sites, setSites] = useState<UserSites>([]);
@@ -190,7 +190,7 @@ export default function Inventory() {
         <SiteInventory
           key={site.SiteId}
           site={site}
-          inventory={storage.findByParentId(site.SiteId)}
+          stores={storage.findByParentId(site.SiteId)}
         />
       ))}
       {storage.findByType('warehouse').map((wh) => (

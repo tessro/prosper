@@ -18,12 +18,19 @@ export interface StoreItem {
   totalWeight: number;
 }
 
+interface StoreUsage {
+  capacity: number;
+  used: number;
+}
+
 export interface Store {
   id: string;
   parentId: string;
   type: StoreType;
   name?: string;
   items: StoreItem[];
+  volume: StoreUsage;
+  weight: StoreUsage;
 }
 
 function convertFioType(type: FioStorageType): StoreType {
@@ -64,6 +71,14 @@ export class StorageRepository {
         parentId: store.AddressableId,
         type: convertFioType(store.Type),
         name: store.Name ?? undefined,
+        volume: {
+          capacity: store.VolumeCapacity,
+          used: store.VolumeLoad,
+        },
+        weight: {
+          capacity: store.WeightCapacity,
+          used: store.WeightLoad,
+        },
         items: store.StorageItems.map((item) => ({
           id: item.MaterialId,
           type: convertFioItemType(item.Type),

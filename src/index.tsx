@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import App from './App';
 import ProductionChainViewer from './ProductionChainViewer';
-import Inventory from './Inventory';
+import InventoryViewer from './InventoryViewer';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(
@@ -15,7 +15,7 @@ root.render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />}>
-          <Route path="/inventory" element={<Inventory />} />
+          <Route path="/inventory" element={<InventoryViewer />} />
           <Route path="/production-chains">
             <Route index element={<ProductionChainViewer />} />
             <Route path=":ticker" element={<ProductionChainViewer />} />
