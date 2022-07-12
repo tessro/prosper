@@ -1,7 +1,7 @@
 import JSONCrush from 'jsoncrush';
 import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { loadRecipes } from './data';
 import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
@@ -51,7 +51,13 @@ const DEFAULT_RECIPES: Record<string, string> = {
 
 const graph = new RecipeGraph(loadRecipes());
 
+function useQuery() {
+  const { search } = useLocation();
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+
 export default function ProductionChainViewer() {
+  const query = useQuery();
   const navigate = useNavigate();
   const params = useParams();
   const [ticker, setTicker] = useState(params.ticker?.toUpperCase() ?? 'RAT');
@@ -60,7 +66,9 @@ export default function ProductionChainViewer() {
   const [userSelectedRecipes, setUserSelectedRecipes] = useState<
     Record<string, string>
   >({});
-  const [terminals, setTerminals] = useState<string[]>([]);
+  const [terminals, setTerminals] = useState<string[]>(
+    query.get('terminals')?.split(',') ?? []
+  );
 
   const selectedRecipes: Record<string, string> = useMemo(
     () => ({
@@ -88,10 +96,16 @@ export default function ProductionChainViewer() {
       url.searchParams.delete('selectedRecipes');
     }
 
+    if (terminals.length > 0) {
+      url.searchParams.set('terminals', terminals.join(','));
+    } else {
+      url.searchParams.delete('terminals');
+    }
+
     if (url.toString() !== window.location.href) {
       navigate(url.pathname + url.search);
     }
-  }, [navigate, ticker, quantity, userSelectedRecipes]);
+  }, [navigate, ticker, quantity, terminals, userSelectedRecipes]);
 
   const handleChange = (ticker: string, recipeName: string) => {
     if (DEFAULT_RECIPES[ticker] === recipeName) {
