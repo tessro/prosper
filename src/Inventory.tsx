@@ -1,22 +1,29 @@
 import { useContext, useMemo, useState } from 'react';
 
-import { FioClient, UserStorage, UserStorageItem } from './data';
+import {
+  FioClient,
+  StationRepository,
+  Store,
+  StoreItem,
+  StorageRepository,
+  UserShips,
+  UserSites,
+  UserStorage,
+} from './data';
 import { OrderBookContext } from './contexts/OrderBookContext';
 
-async function fetchInventory(): Promise<UserStorage> {
-  const client = new FioClient();
-  return client.getUserStorage();
-}
+const client = new FioClient();
+const stations = StationRepository.default();
 
 interface StorageLocationProps {
-  name: string | null;
+  name?: string;
   type: string;
-  inventory: UserStorageItem[];
+  inventory: StoreItem[];
 }
 
 interface MaterialProps {
-  ticker: string | null;
-  name: string | null;
+  ticker?: string;
+  name?: string;
   type: string;
   quantity: number;
   weight: number;
@@ -57,9 +64,6 @@ function Other({ type }: OtherProps) {
 function StorageLocation({ name, type, inventory }: StorageLocationProps) {
   return (
     <div>
-      <div className="my-2 font-bold">
-        {name} ({type})
-      </div>
       <table className="table bg-base-200">
         <thead>
           <tr>
@@ -71,20 +75,20 @@ function StorageLocation({ name, type, inventory }: StorageLocationProps) {
         </thead>
         <tbody>
           {inventory.map((material) => {
-            if (material.Type === 'INVENTORY') {
+            if (material.type === 'material') {
               return (
                 <Material
-                  key={material.MaterialTicker}
-                  ticker={material.MaterialTicker}
-                  name={material.MaterialName}
-                  type={material.Type}
-                  quantity={material.MaterialAmount}
-                  weight={material.TotalWeight}
-                  volume={material.TotalVolume}
+                  key={material.id}
+                  ticker={material.ticker}
+                  name={material.name}
+                  type={material.type}
+                  quantity={material.quantity}
+                  weight={material.totalWeight}
+                  volume={material.totalVolume}
                 />
               );
             } else {
-              return <Other type={material.Type} />;
+              return <Other type={material.type} />;
             }
           })}
         </tbody>
@@ -93,21 +97,104 @@ function StorageLocation({ name, type, inventory }: StorageLocationProps) {
   );
 }
 
+interface ShipInventoryProps {
+  ship: UserShips[number];
+  hold?: Store | null;
+  ftlTank?: Store | null;
+  stlTank?: Store | null;
+}
+
+function ShipInventory({ ship, hold, ftlTank, stlTank }: ShipInventoryProps) {
+  return (
+    <div>
+      <div className="my-2 font-bold">🚀 {ship.Name}</div>
+      {hold && (
+        <StorageLocation
+          name={hold.name}
+          type={hold.type}
+          inventory={hold.items}
+        />
+      )}
+    </div>
+  );
+}
+
+interface SiteInventoryProps {
+  site: UserSites[number];
+  inventory: Store[];
+}
+
+function SiteInventory({ site, inventory }: SiteInventoryProps) {
+  return (
+    <div>
+      <div className="my-2 font-bold">🪐 {site.PlanetName}</div>
+      <StorageLocation
+        name={inventory[0].name}
+        type={inventory[0].type}
+        inventory={inventory[0].items}
+      />
+    </div>
+  );
+}
+
+interface WarehouseProps {
+  inventory: Store;
+}
+
+function Warehouse({ inventory }: WarehouseProps) {
+  const station = stations.findByWarehouseId(inventory.parentId);
+  const displayName = station
+    ? `${station.name} (${station.system.code})`
+    : inventory.parentId;
+
+  return (
+    <div>
+      <div className="my-2 font-bold">📦 {displayName}</div>
+      <StorageLocation
+        name={inventory.name}
+        type={inventory.type}
+        inventory={inventory.items}
+      />
+    </div>
+  );
+}
+
 export default function Inventory() {
   const [inventory, setInventory] = useState<UserStorage>([]);
+  const [ships, setShips] = useState<UserShips>([]);
+  const [sites, setSites] = useState<UserSites>([]);
   useMemo(() => {
-    fetchInventory().then((inv) => setInventory(inv));
+    client.getUserStorage().then((inv) => setInventory(inv));
   }, []);
+  useMemo(() => {
+    client.getUserShips().then((ships) => setShips(ships));
+  }, []);
+  useMemo(() => {
+    client.getUserSites().then((sites) => setSites(sites));
+  }, []);
+
+  const storage = StorageRepository.fromFio(inventory);
 
   return (
     <div className="pt-20 p-4">
-      {inventory.map((location) => (
-        <StorageLocation
-          key={location.StorageId}
-          name={location.Name}
-          type={location.Type}
-          inventory={location.StorageItems}
+      {ships.map((ship) => (
+        <ShipInventory
+          key={ship.ShipId}
+          ship={ship}
+          hold={storage.findById(ship.StoreId)}
+          ftlTank={storage.findById(ship.FtlFuelStoreId)}
+          stlTank={storage.findById(ship.StlFuelStoreId)}
         />
+      ))}
+      {sites.map((site) => (
+        <SiteInventory
+          key={site.SiteId}
+          site={site}
+          inventory={storage.findByParentId(site.SiteId)}
+        />
+      ))}
+      {storage.findByType('warehouse').map((wh) => (
+        <Warehouse key={wh.id} inventory={wh} />
       ))}
     </div>
   );
