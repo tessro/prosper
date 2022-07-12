@@ -85,7 +85,7 @@ function StorageLocation({
   }, 0);
   return (
     <div>
-      <table className="table table-compact bg-base-200">
+      <table className="table table-compact bg-base-200 w-full">
         <thead>
           <tr>
             <th>Qty</th>
@@ -125,7 +125,9 @@ function StorageLocation({
         <tfoot>
           <tr>
             <td colSpan={3}>Total</td>
-            <td>{formatCurrency(totalValue, defaultExchange.currencyCode)}</td>
+            <td className="text-right">
+              {formatCurrency(totalValue, defaultExchange.currencyCode)}
+            </td>
           </tr>
         </tfoot>
       </table>
@@ -287,36 +289,42 @@ export default function InventoryViewer() {
       </select>
       <div className="flex space-x-4">
         {ships.map((ship) => (
-          <ShipInventory
-            key={ship.ShipId}
-            ship={ship}
-            hold={storage.findById(ship.StoreId)}
-            ftlTank={storage.findById(ship.FtlFuelStoreId)}
-            stlTank={storage.findById(ship.StlFuelStoreId)}
-            defaultExchange={exchange}
-            defaultPriceSource={priceSource}
-          />
+          <div className="w-80">
+            <ShipInventory
+              key={ship.ShipId}
+              ship={ship}
+              hold={storage.findById(ship.StoreId)}
+              ftlTank={storage.findById(ship.FtlFuelStoreId)}
+              stlTank={storage.findById(ship.StlFuelStoreId)}
+              defaultExchange={exchange}
+              defaultPriceSource={priceSource}
+            />
+          </div>
         ))}
       </div>
       <div className="flex space-x-4">
         {sites.map((site) => (
-          <SiteInventory
-            key={site.SiteId}
-            site={site}
-            stores={storage.findByParentId(site.SiteId)}
-            defaultExchange={exchange}
-            defaultPriceSource={priceSource}
-          />
+          <div className="w-80">
+            <SiteInventory
+              key={site.SiteId}
+              site={site}
+              stores={storage.findByParentId(site.SiteId)}
+              defaultExchange={exchange}
+              defaultPriceSource={priceSource}
+            />
+          </div>
         ))}
       </div>
       <div className="flex space-x-4">
         {storage.findByType('warehouse').map((wh) => (
-          <Warehouse
-            key={wh.id}
-            inventory={wh}
-            defaultExchange={exchange}
-            defaultPriceSource={priceSource}
-          />
+          <div className="w-80">
+            <Warehouse
+              key={wh.id}
+              inventory={wh}
+              defaultExchange={exchange}
+              defaultPriceSource={priceSource}
+            />
+          </div>
         ))}
       </div>
     </div>
