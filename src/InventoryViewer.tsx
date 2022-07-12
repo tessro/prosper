@@ -287,6 +287,7 @@ export default function InventoryViewer() {
         <option key="average">average</option>
         <option key="last">last</option>
       </select>
+      <div className="divider mt-6">Ships</div>
       <div className="flex space-x-4">
         {ships.map((ship) => (
           <div className="w-80">
@@ -302,6 +303,7 @@ export default function InventoryViewer() {
           </div>
         ))}
       </div>
+      <div className="divider mt-6">Bases</div>
       <div className="flex space-x-4">
         {sites.map((site) => (
           <div className="w-80">
@@ -315,6 +317,7 @@ export default function InventoryViewer() {
           </div>
         ))}
       </div>
+      <div className="divider mt-6">Warehouses</div>
       <div className="flex space-x-4">
         {storage.findByType('warehouse').map((wh) => (
           <div className="w-80">
