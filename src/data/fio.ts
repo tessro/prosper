@@ -225,6 +225,43 @@ export function loadRecipes(): Recipe[] {
   return results;
 }
 
+const userShipsSchema = z.array(
+  z.object({
+    Acceleration: z.number(),
+    BlueprintNaturalId: z.string().nullable(),
+    CommissioningTimeEpochMs: z.number(),
+    Condition: z.number(),
+    EmitterPower: z.number(),
+    FlightId: z.string().nullable(),
+    FtlFuelStoreId: z.string(),
+    LastRepairEpochMs: z.number().nullable(),
+    Location: z.string(),
+    Mass: z.number(),
+    Name: z.string(),
+    OperatingEmptyMass: z.number(),
+    ReactorPower: z.number(),
+    Registration: z.string(),
+    RepairMaterials: z.array(
+      z.object({
+        Amount: z.number(),
+        MaterialId: z.string(),
+        MaterialName: z.string(),
+        MaterialTicker: z.string(),
+        ShipRepairMaterialId: z.string(),
+      })
+    ),
+    ShipId: z.string(),
+    StlFuelFlowRate: z.number(),
+    StlFuelStoreId: z.string(),
+    StoreId: z.string(),
+    Thrust: z.number(),
+    Timestamp: z.string(),
+    UserNameSubmitted: z.string(),
+    Volume: z.number(),
+  })
+);
+export type UserShips = z.infer<typeof userShipsSchema>;
+
 const userSitesSchema = z.array(
   z.object({
     Buildings: z.array(z.object({})),
@@ -251,7 +288,7 @@ const userStorageItemSchema = z.object({
   MaterialAmount: z.number(),
   MaterialValue: z.number(),
   MaterialValueCurrency: z.string().nullable(),
-  Type: z.string(),
+  Type: z.enum(['INVENTORY', 'BLOCKED', 'SHIPMENT']),
   TotalWeight: z.number(),
   TotalVolume: z.number(),
 });
@@ -265,7 +302,13 @@ const userStorageSchema = z.array(
     Name: z.string().nullable(),
     StorageId: z.string(),
     Timestamp: z.string(),
-    Type: z.string(),
+    Type: z.enum([
+      'STORE',
+      'WAREHOUSE_STORE',
+      'SHIP_STORE',
+      'STL_FUEL_STORE',
+      'FTL_FUEL_STORE',
+    ]),
     UserNameSubmitted: z.string(),
     VolumeCapacity: z.number(),
     VolumeLoad: z.number(),
@@ -338,6 +381,18 @@ export class FioClient {
       ],
     },
   });
+
+  async getUserShips(): Promise<UserShips> {
+    if (!this.username) {
+      return [];
+    }
+
+    const data = await this.api
+      .get(`https://rest.fnar.net/ship/ships/${this.username}`)
+      .json();
+
+    return userShipsSchema.parse(data);
+  }
 
   async getUserSites(): Promise<UserSites> {
     if (!this.username) {
