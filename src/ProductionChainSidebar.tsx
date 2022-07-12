@@ -116,7 +116,9 @@ export function ProductionChainSidebar({
   };
 
   const handleTerminalsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onTerminalsChange(e.target.value.split(',').map((t) => t.trim()));
+    onTerminalsChange(
+      e.target.value.split(',').map((t) => t.trim().toUpperCase())
+    );
   };
 
   return (
