@@ -268,25 +268,37 @@ export default function InventoryViewer() {
 
   return (
     <div className="pt-20 p-4">
-      <select
-        className="select"
-        defaultValue={exchange.code}
-        onChange={handleExchangeChange}
-      >
-        {exchanges.all().map((exchange) => (
-          <option key={exchange.code}>{exchange.code}</option>
-        ))}
-      </select>
-      <select
-        className="select"
-        defaultValue={priceSource}
-        onChange={handlePriceSourceChange}
-      >
-        <option key="bid">bid</option>
-        <option key="ask">ask</option>
-        <option key="average">average</option>
-        <option key="last">last</option>
-      </select>
+      <div className="w-48">
+        <div className="flex items-center">
+          <label className="label w-1/3">CX</label>
+          <div className="form-control w-2/3">
+            <select
+              className="select select-sm select-bordered w-full"
+              defaultValue={exchange.code}
+              onChange={handleExchangeChange}
+            >
+              {exchanges.all().map((exchange) => (
+                <option key={exchange.code}>{exchange.code}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex items-center">
+          <label className="label w-1/3">Price</label>
+          <div className="form-control w-2/3">
+            <select
+              className="select select-sm select-bordered w-full"
+              defaultValue={priceSource}
+              onChange={handlePriceSourceChange}
+            >
+              <option key="bid">bid</option>
+              <option key="ask">ask</option>
+              <option key="average">average</option>
+              <option key="last">last</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <div className="divider mt-6">Ships</div>
       <div className="flex space-x-4">
         {ships.map((ship) => (
