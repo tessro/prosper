@@ -11,6 +11,14 @@ import {
 } from './data';
 import { OrderBookContext } from './contexts/OrderBookContext';
 
+function formatCurrency(amount: number, currency: string): string {
+  const value = amount.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `${value} ${currency}`;
+}
+
 const client = new FioClient();
 const stations = StationRepository.default();
 
@@ -38,10 +46,14 @@ function Material({ ticker, quantity }: MaterialProps) {
 
   return (
     <tr>
-      <td>{quantity}</td>
+      <td className="text-right">{quantity}</td>
       <td>{ticker}</td>
-      <td>{Math.round(100 * (cx?.PriceAverage ?? 0)) / 100}</td>
-      <td>{Math.round(quantity * 100 * (cx?.PriceAverage ?? 0)) / 100}</td>
+      <td className="text-right">
+        {cx && formatCurrency(cx.PriceAverage ?? 0, cx.Currency)}
+      </td>
+      <td className="text-right">
+        {cx && formatCurrency(quantity * (cx.PriceAverage ?? 0), cx.Currency)}
+      </td>
     </tr>
   );
 }
@@ -66,8 +78,8 @@ function StorageLocation({ store }: StorageLocationProps) {
           <tr>
             <th>Qty</th>
             <th>Mat.</th>
-            <th>Price</th>
-            <th>Value</th>
+            <th className="text-center">Price</th>
+            <th className="text-center">Value</th>
           </tr>
         </thead>
         <tbody>
@@ -136,7 +148,7 @@ function SiteInventory({ site, stores }: SiteInventoryProps) {
   return (
     <div>
       <div className="my-2 font-bold">🪐 {site.PlanetName}</div>
-      <StorageLocation store={stores[0]} />
+      {stores.length > 0 && <StorageLocation store={stores[0]} />}
     </div>
   );
 }
@@ -177,25 +189,31 @@ export default function InventoryViewer() {
 
   return (
     <div className="pt-20 p-4">
-      {ships.map((ship) => (
-        <ShipInventory
-          key={ship.ShipId}
-          ship={ship}
-          hold={storage.findById(ship.StoreId)}
-          ftlTank={storage.findById(ship.FtlFuelStoreId)}
-          stlTank={storage.findById(ship.StlFuelStoreId)}
-        />
-      ))}
-      {sites.map((site) => (
-        <SiteInventory
-          key={site.SiteId}
-          site={site}
-          stores={storage.findByParentId(site.SiteId)}
-        />
-      ))}
-      {storage.findByType('warehouse').map((wh) => (
-        <Warehouse key={wh.id} inventory={wh} />
-      ))}
+      <div className="flex space-x-4">
+        {ships.map((ship) => (
+          <ShipInventory
+            key={ship.ShipId}
+            ship={ship}
+            hold={storage.findById(ship.StoreId)}
+            ftlTank={storage.findById(ship.FtlFuelStoreId)}
+            stlTank={storage.findById(ship.StlFuelStoreId)}
+          />
+        ))}
+      </div>
+      <div className="flex space-x-4">
+        {sites.map((site) => (
+          <SiteInventory
+            key={site.SiteId}
+            site={site}
+            stores={storage.findByParentId(site.SiteId)}
+          />
+        ))}
+      </div>
+      <div className="flex space-x-4">
+        {storage.findByType('warehouse').map((wh) => (
+          <Warehouse key={wh.id} inventory={wh} />
+        ))}
+      </div>
     </div>
   );
 }
