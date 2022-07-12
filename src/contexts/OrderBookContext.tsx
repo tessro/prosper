@@ -1,8 +1,10 @@
 import { createContext, useState, PropsWithChildren, useMemo } from 'react';
 
-import { FioClient, OrderBook } from '../data';
+import { FioClient, OrderBookRepository } from '../data';
 
-export const OrderBookContext = createContext<OrderBook | null>(null);
+export const OrderBookContext = createContext<OrderBookRepository>(
+  OrderBookRepository.empty()
+);
 
 function fetchOrderBook() {
   const client = new FioClient();
@@ -10,10 +12,14 @@ function fetchOrderBook() {
 }
 
 export function OrderBookProvider({ children }: PropsWithChildren) {
-  const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
+  const [orderBook, setOrderBook] = useState<OrderBookRepository>(
+    OrderBookRepository.empty()
+  );
 
   useMemo(() => {
-    fetchOrderBook().then((result) => setOrderBook(result));
+    fetchOrderBook().then((result) =>
+      setOrderBook(OrderBookRepository.fromFio(result))
+    );
   }, []);
 
   return (

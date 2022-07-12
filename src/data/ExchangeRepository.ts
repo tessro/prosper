@@ -38,7 +38,7 @@ export class ExchangeRepository {
   }
 
   constructor(exchanges: Exchange[]) {
-    this.exchanges = exchanges;
+    this.exchanges = exchanges.sort((a, b) => a.code.localeCompare(b.code));
   }
 
   all(): Exchange[] {
@@ -47,5 +47,13 @@ export class ExchangeRepository {
 
   findById(id: string): Exchange | null {
     return this.exchanges.find((exchange) => exchange.id === id) ?? null;
+  }
+
+  findByCode(code: string): Exchange {
+    const exchange = this.exchanges.find((exchange) => exchange.code === code);
+    if (!exchange) {
+      throw new Error(`Couldn't find exchange '${code}'`);
+    }
+    return exchange;
   }
 }

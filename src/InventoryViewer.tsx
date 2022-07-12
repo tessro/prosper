@@ -1,7 +1,10 @@
 import { useContext, useMemo, useState } from 'react';
 
 import {
+  Exchange,
+  ExchangeRepository,
   FioClient,
+  PriceSource,
   StationRepository,
   Store,
   StorageRepository,
@@ -19,10 +22,13 @@ function formatCurrency(amount: number, currency: string): string {
 }
 
 const client = new FioClient();
+const exchanges = ExchangeRepository.default();
 const stations = StationRepository.default();
 
 interface StorageLocationProps {
   store: Store;
+  defaultExchange: Exchange;
+  defaultPriceSource: PriceSource;
 }
 
 interface MaterialProps {
@@ -61,19 +67,20 @@ function Other({ type }: OtherProps) {
   );
 }
 
-function StorageLocation({ store }: StorageLocationProps) {
+function StorageLocation({
+  store,
+  defaultExchange,
+  defaultPriceSource,
+}: StorageLocationProps) {
   const orderBook = useContext(OrderBookContext);
-  function findPriceInfo(ticker: string): any {
-    if (orderBook) {
-      return orderBook.find(
-        (m) => m.MaterialTicker === ticker && m.ExchangeCode === 'IC1'
-      );
-    }
-  }
 
   const totalValue = store.items.reduce((total, item) => {
     if (item.ticker)
-      total += item.quantity * (findPriceInfo(item.ticker).PriceAverage ?? 0);
+      total +=
+        item.quantity *
+        (orderBook.findByTicker(item.ticker, defaultExchange.code)?.[
+          defaultPriceSource
+        ] ?? 0);
     return total;
   }, 0);
   return (
@@ -101,10 +108,13 @@ function StorageLocation({ store }: StorageLocationProps) {
                   volume={material.totalVolume}
                   price={
                     material.ticker
-                      ? findPriceInfo(material.ticker)?.PriceAverage ?? 0
+                      ? orderBook.findByTicker(
+                          material.ticker,
+                          defaultExchange.code
+                        )?.[defaultPriceSource] ?? 0
                       : 0
                   }
-                  currencyCode={'ICA'}
+                  currencyCode={defaultExchange.currencyCode}
                 />
               );
             } else {
@@ -115,7 +125,7 @@ function StorageLocation({ store }: StorageLocationProps) {
         <tfoot>
           <tr>
             <td colSpan={3}>Total</td>
-            <td>{formatCurrency(totalValue, 'ICA')}</td>
+            <td>{formatCurrency(totalValue, defaultExchange.currencyCode)}</td>
           </tr>
         </tfoot>
       </table>
@@ -143,15 +153,30 @@ interface ShipInventoryProps {
   hold?: Store | null;
   ftlTank?: Store | null;
   stlTank?: Store | null;
+  defaultExchange: Exchange;
+  defaultPriceSource: PriceSource;
 }
 
-function ShipInventory({ ship, hold, ftlTank, stlTank }: ShipInventoryProps) {
+function ShipInventory({
+  ship,
+  hold,
+  ftlTank,
+  stlTank,
+  defaultExchange,
+  defaultPriceSource,
+}: ShipInventoryProps) {
   return (
     <div>
       <div className="my-2 font-bold">🚀 {ship.Name}</div>
       {stlTank && <FuelTank type="stl" tank={stlTank} />}
       {ftlTank && <FuelTank type="ftl" tank={ftlTank} />}
-      {hold && <StorageLocation store={hold} />}
+      {hold && (
+        <StorageLocation
+          store={hold}
+          defaultExchange={defaultExchange}
+          defaultPriceSource={defaultPriceSource}
+        />
+      )}
     </div>
   );
 }
@@ -159,22 +184,41 @@ function ShipInventory({ ship, hold, ftlTank, stlTank }: ShipInventoryProps) {
 interface SiteInventoryProps {
   site: UserSites[number];
   stores: Store[];
+  defaultExchange: Exchange;
+  defaultPriceSource: PriceSource;
 }
 
-function SiteInventory({ site, stores }: SiteInventoryProps) {
+function SiteInventory({
+  site,
+  stores,
+  defaultExchange,
+  defaultPriceSource,
+}: SiteInventoryProps) {
   return (
     <div>
       <div className="my-2 font-bold">🪐 {site.PlanetName}</div>
-      {stores.length > 0 && <StorageLocation store={stores[0]} />}
+      {stores.length > 0 && (
+        <StorageLocation
+          store={stores[0]}
+          defaultExchange={defaultExchange}
+          defaultPriceSource={defaultPriceSource}
+        />
+      )}
     </div>
   );
 }
 
 interface WarehouseProps {
   inventory: Store;
+  defaultExchange: Exchange;
+  defaultPriceSource: PriceSource;
 }
 
-function Warehouse({ inventory }: WarehouseProps) {
+function Warehouse({
+  inventory,
+  defaultExchange,
+  defaultPriceSource,
+}: WarehouseProps) {
   const station = stations.findByWarehouseId(inventory.parentId);
   const displayName = station
     ? `${station.name} (${station.system.code})`
@@ -183,12 +227,20 @@ function Warehouse({ inventory }: WarehouseProps) {
   return (
     <div>
       <div className="my-2 font-bold">📦 {displayName}</div>
-      <StorageLocation store={inventory} />
+      <StorageLocation
+        store={inventory}
+        defaultExchange={defaultExchange}
+        defaultPriceSource={defaultPriceSource}
+      />
     </div>
   );
 }
 
 export default function InventoryViewer() {
+  const [exchange, setExchange] = useState<Exchange>(
+    exchanges.findByCode('IC1')
+  );
+  const [priceSource, setPriceSource] = useState<PriceSource>('average');
   const [inventory, setInventory] = useState<UserStorage>([]);
   const [ships, setShips] = useState<UserShips>([]);
   const [sites, setSites] = useState<UserSites>([]);
@@ -204,8 +256,35 @@ export default function InventoryViewer() {
 
   const storage = StorageRepository.fromFio(inventory);
 
+  const handleExchangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setExchange(exchanges.findByCode(e.target.value));
+  };
+
+  const handlePriceSourceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPriceSource(e.target.value as PriceSource);
+  };
+
   return (
     <div className="pt-20 p-4">
+      <select
+        className="select"
+        defaultValue={exchange.code}
+        onChange={handleExchangeChange}
+      >
+        {exchanges.all().map((exchange) => (
+          <option key={exchange.code}>{exchange.code}</option>
+        ))}
+      </select>
+      <select
+        className="select"
+        defaultValue={priceSource}
+        onChange={handlePriceSourceChange}
+      >
+        <option key="bid">bid</option>
+        <option key="ask">ask</option>
+        <option key="average">average</option>
+        <option key="last">last</option>
+      </select>
       <div className="flex space-x-4">
         {ships.map((ship) => (
           <ShipInventory
@@ -214,6 +293,8 @@ export default function InventoryViewer() {
             hold={storage.findById(ship.StoreId)}
             ftlTank={storage.findById(ship.FtlFuelStoreId)}
             stlTank={storage.findById(ship.StlFuelStoreId)}
+            defaultExchange={exchange}
+            defaultPriceSource={priceSource}
           />
         ))}
       </div>
@@ -223,12 +304,19 @@ export default function InventoryViewer() {
             key={site.SiteId}
             site={site}
             stores={storage.findByParentId(site.SiteId)}
+            defaultExchange={exchange}
+            defaultPriceSource={priceSource}
           />
         ))}
       </div>
       <div className="flex space-x-4">
         {storage.findByType('warehouse').map((wh) => (
-          <Warehouse key={wh.id} inventory={wh} />
+          <Warehouse
+            key={wh.id}
+            inventory={wh}
+            defaultExchange={exchange}
+            defaultPriceSource={priceSource}
+          />
         ))}
       </div>
     </div>
