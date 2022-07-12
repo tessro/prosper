@@ -49,6 +49,8 @@ const DEFAULT_RECIPES: Record<string, string> = {
   C: '4xGRN=>4xC',
 };
 
+const DEFAULT_TERMINALS = ['O'];
+
 const graph = new RecipeGraph(loadRecipes());
 
 function useQuery() {
@@ -67,7 +69,7 @@ export default function ProductionChainViewer() {
     Record<string, string>
   >({});
   const [terminals, setTerminals] = useState<string[]>(
-    query.get('terminals')?.split(',') ?? []
+    query.get('terminals')?.split(',') ?? DEFAULT_TERMINALS
   );
 
   const selectedRecipes: Record<string, string> = useMemo(
@@ -96,10 +98,10 @@ export default function ProductionChainViewer() {
       url.searchParams.delete('selectedRecipes');
     }
 
-    if (terminals.length > 0) {
-      url.searchParams.set('terminals', terminals.join(','));
-    } else {
+    if (terminals.length === 1 && terminals[0] === 'O') {
       url.searchParams.delete('terminals');
+    } else {
+      url.searchParams.set('terminals', terminals.join(','));
     }
 
     if (url.toString() !== window.location.href) {
