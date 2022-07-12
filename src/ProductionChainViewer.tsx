@@ -60,6 +60,7 @@ export default function ProductionChainViewer() {
   const [userSelectedRecipes, setUserSelectedRecipes] = useState<
     Record<string, string>
   >({});
+  const [terminals, setTerminals] = useState<string[]>([]);
 
   const selectedRecipes: Record<string, string> = useMemo(
     () => ({
@@ -72,6 +73,7 @@ export default function ProductionChainViewer() {
   const { nodes, edges } = graph.getFlowGraph(ticker, {
     quantity,
     selectedRecipes,
+    terminals,
   });
 
   useEffect(() => {
@@ -115,6 +117,10 @@ export default function ProductionChainViewer() {
     setIncludeIntermediates(includeIntermediates);
   };
 
+  const handleTerminalsChange = (terminals: string[]) => {
+    setTerminals(terminals);
+  };
+
   return (
     <div className="w-screen h-screen">
       <ProductionChainSidebar
@@ -122,10 +128,12 @@ export default function ProductionChainViewer() {
         quantity={quantity}
         includeIntermediates={includeIntermediates}
         selectedRecipes={selectedRecipes}
+        terminals={terminals}
         onTickerChange={handleTickerChange}
         onQuantityChange={handleQuantityChange}
         onIncludeIntermediatesChange={handleIncludeIntermediatesChange}
         onRecipeChange={handleChange}
+        onTerminalsChange={handleTerminalsChange}
       />
       <Flow nodes={nodes} edges={edges} />
     </div>

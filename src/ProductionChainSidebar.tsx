@@ -59,6 +59,8 @@ interface SidebarProps {
   onQuantityChange: (quantity: number) => void;
   selectedRecipes: Record<string, string>;
   onRecipeChange: (ticker: string, recipe: string) => void;
+  terminals: string[];
+  onTerminalsChange: (terminals: string[]) => void;
 }
 
 export function ProductionChainSidebar({
@@ -70,6 +72,8 @@ export function ProductionChainSidebar({
   onIncludeIntermediatesChange,
   selectedRecipes: userSelectedRecipes,
   onRecipeChange,
+  terminals,
+  onTerminalsChange,
 }: SidebarProps) {
   const selectedRecipes: Record<string, string> = useMemo(
     () => ({
@@ -111,6 +115,10 @@ export function ProductionChainSidebar({
     onIncludeIntermediatesChange(e.target.checked);
   };
 
+  const handleTerminalsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onTerminalsChange(e.target.value.split(',').map((t) => t.trim()));
+  };
+
   return (
     <div className="fixed z-10 bg-base-200 w-80 top-20 bottom-4 left-3 rounded-lg shadow p-4 overflow-auto">
       <div className="form-control">
@@ -143,6 +151,29 @@ export function ProductionChainSidebar({
           onChange={handleQuantityChange}
         />
       </div>
+
+      <div className="form-control my-2">
+        <label className="label" htmlFor="Sidebar/terminals">
+          <span className="label-text">Terminals</span>
+          <span className="label-text-alt">
+            Comma-separated list of tickers
+          </span>
+        </label>
+        <input
+          id="Sidebar/terminals"
+          type="text"
+          className="input w-full"
+          defaultValue={terminals.join(', ')}
+          onChange={handleTerminalsChange}
+        />
+        <label className="label">
+          <span className="label-text-alt">
+            These materials are treated as raw inputs. This can be helpful if
+            you're planning to trade for them, or buy from CX.
+          </span>
+        </label>
+      </div>
+
       <h1 className="text-lg font-bold mt-4">Inputs</h1>
       <div className="form-control mb-1">
         <label className="label cursor-pointer justify-start">
