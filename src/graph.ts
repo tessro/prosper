@@ -336,11 +336,13 @@ export class RecipeGraph {
   }
 
   private get(ticker: string): Node {
-    return this.roots[ticker];
+    return this.roots[ticker.toUpperCase()];
   }
 
   private getOrCreate(ticker: string): Node {
-    return (this.roots[ticker] ??= new Node(ticker));
+    return (this.roots[ticker.toUpperCase()] ??= new Node(
+      ticker.toUpperCase()
+    ));
   }
 
   getDecisions(
