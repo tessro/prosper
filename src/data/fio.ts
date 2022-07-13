@@ -174,7 +174,7 @@ export interface Ingredient {
 }
 
 export interface Recipe {
-  building: string;
+  building?: string;
   name: string;
   inputs: Ingredient[];
   outputs: Ingredient[];

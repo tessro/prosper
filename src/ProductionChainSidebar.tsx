@@ -4,7 +4,7 @@ import {
   BuildingRepository,
   MaterialRepository,
   Workforce,
-  loadRecipes,
+  RecipeRepository,
   getNeeds,
 } from './data';
 
@@ -22,9 +22,10 @@ const DEFAULT_RECIPES: Record<string, string> = {
   C: '4xGRN=>4xC',
 };
 
-const graph = new RecipeGraph(loadRecipes());
 const buildings = BuildingRepository.default();
 const materials = MaterialRepository.default();
+const recipes = RecipeRepository.default();
+const graph = new RecipeGraph(recipes.all());
 
 function getTotalWorkforce(tickers: string[]): Workforce {
   const bldgs = tickers.map((ticker) => buildings.findByTicker(ticker));

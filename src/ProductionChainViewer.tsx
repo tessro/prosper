@@ -2,7 +2,7 @@ import JSONCrush from 'jsoncrush';
 import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, { FitViewOptions, Node, Edge } from 'react-flow-renderer';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { loadRecipes } from './data';
+import { RecipeRepository } from './data';
 import { RecipeGraph } from './graph';
 import RecipeNode from './RecipeNode';
 import { ProductionChainSidebar } from './ProductionChainSidebar';
@@ -51,7 +51,9 @@ const DEFAULT_RECIPES: Record<string, string> = {
 
 const DEFAULT_TERMINALS = ['O'];
 
-const graph = new RecipeGraph(loadRecipes());
+const recipes = RecipeRepository.default();
+console.log(recipes.all());
+const graph = new RecipeGraph(recipes.all());
 
 function useQuery() {
   const { search } = useLocation();

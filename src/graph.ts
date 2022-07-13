@@ -22,7 +22,7 @@ export interface Ingredient {
 }
 
 interface Recipe {
-  building: string;
+  building?: string;
   name: string;
   duration: number;
   outputs: Ingredient[];
@@ -117,7 +117,7 @@ class Node {
 
       const inputBuildings = recipe.inputs
         .flatMap((input) => input.material.getBuildings(options))
-        .concat(recipe.building);
+        .concat(recipe.building ?? []);
 
       return [...new Set(inputBuildings)].sort();
     }
