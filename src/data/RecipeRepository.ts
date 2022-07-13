@@ -18,12 +18,10 @@ export class RecipeRepository {
       .all()
       .map((project) => ({
         name: project.name,
-        building: '',
         duration: 0,
         inputs: project.billOfMaterials,
         outputs: [{ ticker: project.code, quantity: 1 }],
       }));
-    console.log(projects);
 
     return new RecipeRepository(loadRecipes().concat(projects));
   }

@@ -52,7 +52,6 @@ const DEFAULT_RECIPES: Record<string, string> = {
 const DEFAULT_TERMINALS = ['O'];
 
 const recipes = RecipeRepository.default();
-console.log(recipes.all());
 const graph = new RecipeGraph(recipes.all());
 
 function useQuery() {
