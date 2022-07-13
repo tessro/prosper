@@ -11,7 +11,7 @@ export class MaterialRepository {
       .map((project) => ({
         id: project.code,
         name: project.name,
-        ticker: project.code,
+        ticker: project.code.toUpperCase(),
         category: {
           id: 'planetary_projects',
           name: 'planetary projects',
@@ -37,6 +37,6 @@ export class MaterialRepository {
   }
 
   findByTicker(ticker: string): Material | null {
-    return this.byTicker[ticker] ?? null;
+    return this.byTicker[ticker.toUpperCase()] ?? null;
   }
 }
