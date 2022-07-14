@@ -15,8 +15,9 @@ export class MaterialRepository {
         category: {
           id: 'planetary_projects',
           name: 'planetary projects',
-          background: '#6BBCCF',
-          color: '#ffffff',
+          background:
+            'linear-gradient(135deg, rgb(52, 140, 160), rgb(77, 165, 185))',
+          color: 'rgb(179, 255, 255)',
         },
         weight: 0,
         volume: 0,
