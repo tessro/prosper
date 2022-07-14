@@ -7,6 +7,7 @@ interface OrderBook {
   ask: number | null;
   last: number | null;
   average: number | null;
+  currencyCode: string;
 }
 
 export type PriceSource = 'ask' | 'bid' | 'last' | 'average';
@@ -29,6 +30,7 @@ export class OrderBookRepository {
         ask: data.Ask,
         last: data.Price,
         average: data.PriceAverage,
+        currencyCode: data.Currency,
       });
     }
 
