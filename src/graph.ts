@@ -43,6 +43,7 @@ interface GetInputsOptions {
 
 interface GetDecisionsOptions {
   selectedRecipes: Record<string, string>;
+  terminals: string[];
 }
 
 interface FlowGraphOptions {
@@ -74,6 +75,8 @@ class Node {
   constructor(public readonly ticker: string) {}
 
   getDecisions(options: GetDecisionsOptions): Decision[] {
+    if (options.terminals.includes(this.ticker)) return [];
+
     let decisions: Decision[] = [];
     if (options.selectedRecipes[this.ticker]) {
       decisions = this.recipes
@@ -354,6 +357,7 @@ export class RecipeGraph {
     return this.get(ticker)
       .getDecisions({
         selectedRecipes: {},
+        terminals: TERMINALS,
         ...options,
       })
       .sort((a, b) => a.material.ticker.localeCompare(b.material.ticker));

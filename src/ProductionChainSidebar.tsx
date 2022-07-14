@@ -86,6 +86,7 @@ export function ProductionChainSidebar({
 
   const decisions = graph.getDecisions(ticker, {
     selectedRecipes,
+    terminals,
   });
   const inputs = graph.getInputs(ticker, {
     quantity,
