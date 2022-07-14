@@ -6,6 +6,7 @@ import App from './App';
 import ProductionChainViewer from './ProductionChainViewer';
 import InventoryViewer from './InventoryViewer';
 import reportWebVitals from './reportWebVitals';
+import ShoppingCartView from './ShoppingCartView';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -24,6 +25,7 @@ root.render(
               element={<ProductionChainViewer />}
             />
           </Route>
+          <Route path="/shopping-cart" element={<ShoppingCartView />} />
         </Route>
       </Routes>
     </BrowserRouter>

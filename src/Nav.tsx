@@ -17,6 +17,9 @@ export function Nav({ onSettingsClick }: NavProps) {
         <Link to="/inventory" className="btn btn-ghost">
           Inventory
         </Link>
+        <Link to="/shopping-cart" className="btn btn-ghost">
+          Shopping Cart
+        </Link>
       </div>
       <div>
         <button className="btn" onClick={onSettingsClick}>
