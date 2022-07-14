@@ -37,6 +37,7 @@ interface GetInputsOptions {
   quantity?: number;
   includeIntermediates?: boolean;
   selectedRecipes: Record<string, string>;
+  terminals: string[];
 }
 
 interface GetDecisionsOptions {
@@ -125,7 +126,7 @@ class Node {
 
   getInputs(options: GetInputsOptions): Ingredient[] {
     const quantity = options.quantity ?? 1;
-    if (this.recipes.length === 0 || TERMINALS.includes(this.ticker)) {
+    if (this.recipes.length === 0 || options.terminals.includes(this.ticker)) {
       return [{ quantity, material: this }];
     } else {
       const recipe =
@@ -361,8 +362,13 @@ export class RecipeGraph {
     return this.get(ticker).getBuildings(options);
   }
 
-  getInputs(ticker: string, options: GetInputsOptions): Ingredient[] {
-    return this.get(ticker).getInputs(options);
+  getInputs(ticker: string, options: Partial<GetInputsOptions>): Ingredient[] {
+    return this.get(ticker).getInputs({
+      includeIntermediates: false,
+      selectedRecipes: {},
+      terminals: TERMINALS,
+      ...options,
+    });
   }
 
   getFlowGraph(

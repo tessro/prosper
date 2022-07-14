@@ -91,6 +91,7 @@ export function ProductionChainSidebar({
     quantity,
     selectedRecipes,
     includeIntermediates,
+    terminals,
   });
   const buildings = graph.getBuildings(ticker, {
     selectedRecipes,
