@@ -302,9 +302,8 @@ export default function InventoryViewer() {
       <div className="divider mt-6">Ships</div>
       <div className="flex space-x-4">
         {ships.map((ship) => (
-          <div className="w-80">
+          <div className="w-80" key={ship.ShipId}>
             <ShipInventory
-              key={ship.ShipId}
               ship={ship}
               hold={storage.findById(ship.StoreId)}
               ftlTank={storage.findById(ship.FtlFuelStoreId)}
@@ -318,9 +317,8 @@ export default function InventoryViewer() {
       <div className="divider mt-6">Bases</div>
       <div className="flex space-x-4">
         {sites.map((site) => (
-          <div className="w-80">
+          <div className="w-80" key={site.SiteId}>
             <SiteInventory
-              key={site.SiteId}
               site={site}
               stores={storage.findByParentId(site.SiteId)}
               defaultExchange={exchange}
@@ -332,9 +330,8 @@ export default function InventoryViewer() {
       <div className="divider mt-6">Warehouses</div>
       <div className="flex space-x-4">
         {storage.findByType('warehouse').map((wh) => (
-          <div className="w-80">
+          <div className="w-80" key={wh.id}>
             <Warehouse
-              key={wh.id}
               inventory={wh}
               defaultExchange={exchange}
               defaultPriceSource={priceSource}
