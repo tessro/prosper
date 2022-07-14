@@ -31,6 +31,7 @@ interface Recipe {
 
 interface GetBuildingsOptions {
   selectedRecipes: Record<string, string>;
+  terminals: string[];
 }
 
 interface GetInputsOptions {
@@ -102,7 +103,7 @@ class Node {
   }
 
   getBuildings(options: GetBuildingsOptions): string[] {
-    if (this.recipes.length === 0 || TERMINALS.includes(this.ticker)) {
+    if (this.recipes.length === 0 || options.terminals.includes(this.ticker)) {
       return [];
     } else {
       const recipe =

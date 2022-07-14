@@ -95,6 +95,7 @@ export function ProductionChainSidebar({
   });
   const buildings = graph.getBuildings(ticker, {
     selectedRecipes,
+    terminals,
   });
   const workforce = getTotalWorkforce(buildings);
   const needs = getNeeds(workforce);
