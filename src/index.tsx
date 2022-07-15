@@ -5,6 +5,7 @@ import './index.css';
 import App from './App';
 import ProductionChainViewer from './ProductionChainViewer';
 import InventoryViewer from './InventoryViewer';
+import RepairPlanner from './RepairPlanner';
 import reportWebVitals from './reportWebVitals';
 import ShoppingCartView from './ShoppingCartView';
 
@@ -25,6 +26,7 @@ root.render(
               element={<ProductionChainViewer />}
             />
           </Route>
+          <Route path="/repair-planner" element={<RepairPlanner />} />
           <Route path="/shopping-cart" element={<ShoppingCartView />} />
         </Route>
       </Routes>
