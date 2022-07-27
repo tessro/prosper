@@ -7,6 +7,7 @@ const client = new FioClient();
 
 export default function RepairPlanner() {
   const [repairThreshold, setRepairThreshold] = useState<number>(89);
+  const [showWithin, setShowWithin] = useState<number>(28);
   const [repairManager, setRepairManager] = useState<RepairManager>(
     RepairManager.empty()
   );
@@ -18,6 +19,10 @@ export default function RepairPlanner() {
 
   const handleThresholdChange = (e: any) => {
     setRepairThreshold(e.target.value);
+  };
+
+  const handleShowWithinChange = (e: any) => {
+    setShowWithin(e.target.value);
   };
 
   return (
@@ -36,6 +41,22 @@ export default function RepairPlanner() {
           <span>days</span>
         </label>
       </div>
+      <div className="form-control mb-4">
+        <label className="label">
+          <span className="label-text">
+            Show buildings needing repair within
+          </span>
+        </label>
+        <label className="input-group">
+          <input
+            type="number"
+            className="input input-bordered w-20"
+            defaultValue={showWithin}
+            onChange={handleShowWithinChange}
+          />
+          <span>days</span>
+        </label>
+      </div>
       <table className="table table-compact">
         <thead>
           <tr>
@@ -46,23 +67,25 @@ export default function RepairPlanner() {
           </tr>
         </thead>
         <tbody>
-          {repairManager.all().map((building) => (
-            <tr>
-              <td>{building.ticker}</td>
-              <td>{building.planet.name ?? building.planet.code}</td>
-              <td>
-                {Math.round(building.daysSinceRepair)}{' '}
-                {Math.round(building.daysSinceRepair) === 1 ? 'day' : 'days'}{' '}
-                ago
-              </td>
-              <td>
-                {Math.round(building.daysUntil(repairThreshold))}{' '}
-                {Math.round(building.daysUntil(repairThreshold)) === 1
-                  ? 'day'
-                  : 'days'}
-              </td>
-            </tr>
-          ))}
+          {repairManager
+            .needingRepairWithin(showWithin, repairThreshold)
+            .map((building) => (
+              <tr>
+                <td>{building.ticker}</td>
+                <td>{building.planet.name ?? building.planet.code}</td>
+                <td>
+                  {Math.round(building.daysSinceRepair)}{' '}
+                  {Math.round(building.daysSinceRepair) === 1 ? 'day' : 'days'}{' '}
+                  ago
+                </td>
+                <td>
+                  {Math.round(building.daysUntil(repairThreshold))}{' '}
+                  {Math.round(building.daysUntil(repairThreshold)) === 1
+                    ? 'day'
+                    : 'days'}
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>

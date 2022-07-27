@@ -89,4 +89,10 @@ export class RepairManager {
   all(): Building[] {
     return this.buildings.sort(lastRepairComparator);
   }
+
+  needingRepairWithin(days: number, threshold: number): Building[] {
+    return this.buildings
+      .filter((building) => building.daysUntil(threshold) <= days)
+      .sort(lastRepairComparator);
+  }
 }
