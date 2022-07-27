@@ -27,35 +27,37 @@ export default function RepairPlanner() {
 
   return (
     <div className="pt-20 p-4">
-      <div className="form-control mb-4">
-        <label className="label">
-          <span className="label-text">Repair frequency</span>
-        </label>
-        <label className="input-group">
-          <input
-            type="number"
-            className="input input-bordered w-20"
-            defaultValue={repairThreshold}
-            onChange={handleThresholdChange}
-          />
-          <span>days</span>
-        </label>
-      </div>
-      <div className="form-control mb-4">
-        <label className="label">
-          <span className="label-text">
-            Show buildings needing repair within
-          </span>
-        </label>
-        <label className="input-group">
-          <input
-            type="number"
-            className="input input-bordered w-20"
-            defaultValue={showWithin}
-            onChange={handleShowWithinChange}
-          />
-          <span>days</span>
-        </label>
+      <div className="flex flex-row space-x-4">
+        <div className="form-control mb-4">
+          <label className="label">
+            <span className="label-text">Repair frequency</span>
+          </label>
+          <label className="input-group">
+            <input
+              type="number"
+              className="input input-bordered w-20"
+              defaultValue={repairThreshold}
+              onChange={handleThresholdChange}
+            />
+            <span>days</span>
+          </label>
+        </div>
+        <div className="form-control mb-4">
+          <label className="label">
+            <span className="label-text">
+              Show buildings needing repair within
+            </span>
+          </label>
+          <label className="input-group">
+            <input
+              type="number"
+              className="input input-bordered w-20"
+              defaultValue={showWithin}
+              onChange={handleShowWithinChange}
+            />
+            <span>days</span>
+          </label>
+        </div>
       </div>
       <table className="table table-compact">
         <thead>
