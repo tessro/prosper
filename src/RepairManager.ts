@@ -1,0 +1,63 @@
+import { BuildingRepository, UserSites } from './data';
+
+interface Building {
+  id: string;
+  ticker: string;
+  planet: {
+    name: string;
+    code: string;
+  };
+  condition: number;
+  lastRepair: number;
+}
+
+const lastRepairComparator = (a: Building, b: Building): number => {
+  if (a.lastRepair < b.lastRepair) {
+    return -1;
+  } else if (a.lastRepair > b.lastRepair) {
+    return 1;
+  } else {
+    return 0;
+  }
+};
+
+export class RepairManager {
+  private readonly buildingRepository = BuildingRepository.default();
+
+  static empty(): RepairManager {
+    return new RepairManager([]);
+  }
+
+  static fromFio(sites: UserSites): RepairManager {
+    const buildings: Building[] = [];
+    for (const site of sites) {
+      for (const building of site.Buildings) {
+        const ticker = building.BuildingTicker;
+
+        // Skip buildings that don't need repair
+        if (['CM'].includes(ticker) || ticker.startsWith('HB')) continue;
+
+        buildings.push({
+          id: building.BuildingId,
+          ticker,
+          planet: {
+            name: site.PlanetName,
+            code: site.PlanetIdentifier,
+          },
+          condition: building.Condition,
+          lastRepair: building.BuildingLastRepair ?? building.BuildingCreated,
+        });
+      }
+    }
+
+    return new RepairManager(buildings);
+  }
+
+  constructor(private readonly buildings: Building[]) {
+    console.log(buildings);
+  }
+
+  all(): Building[] {
+    return this.buildings.sort(lastRepairComparator);
+  }
+}

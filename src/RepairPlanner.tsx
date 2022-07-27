@@ -1,3 +1,45 @@
+import { useMemo, useState } from 'react';
+
+import { FioClient } from './data/fio';
+import { RepairManager } from './RepairManager';
+
+const client = new FioClient();
+
+const msPerDay = 1000 * 60 * 60 * 24;
+
 export default function RepairPlanner() {
-  return <></>;
+  const [repairManager, setRepairManager] = useState<RepairManager>(
+    RepairManager.empty()
+  );
+  useMemo(() => {
+    client
+      .getUserSites()
+      .then((sites) => setRepairManager(RepairManager.fromFio(sites)));
+  }, []);
+
+  return (
+    <div className="pt-20 p-4">
+      <table className="table table-compact">
+        <thead>
+          <tr>
+            <th>Building</th>
+            <th>Planet</th>
+            <th>Last Repair</th>
+          </tr>
+        </thead>
+        <tbody>
+          {repairManager.all().map((building) => (
+            <tr>
+              <td>{building.ticker}</td>
+              <td>{building.planet.name ?? building.planet.code}</td>
+              <td>
+                {Math.round((Date.now() - building.lastRepair) / msPerDay)} days
+                ago
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }

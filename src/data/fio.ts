@@ -264,7 +264,33 @@ export type UserShips = z.infer<typeof userShipsSchema>;
 
 const userSitesSchema = z.array(
   z.object({
-    Buildings: z.array(z.object({})),
+    Buildings: z.array(
+      z.object({
+        BuildingCreated: z.number(),
+        BuildingId: z.string(),
+        BuildingLastRepair: z.number().nullable(),
+        BuildingName: z.string(),
+        BuildingTicker: z.string(),
+        Condition: z.number(),
+        ReclaimableMaterials: z.array(
+          z.object({
+            MaterialAmount: z.number(),
+            MaterialId: z.string(),
+            MaterialName: z.string(),
+            MaterialTicker: z.string(),
+          })
+        ),
+        RepairMaterials: z.array(
+          z.object({
+            MaterialAmount: z.number(),
+            MaterialId: z.string(),
+            MaterialName: z.string(),
+            MaterialTicker: z.string(),
+          })
+        ),
+        SiteBuildingId: z.string(),
+      })
+    ),
     InvestedPermits: z.number(),
     MaximumPermits: z.number(),
     PlanetFoundedEpochMs: z.number(),
