@@ -32,6 +32,10 @@ class Building {
   get daysSinceRepair(): number {
     return (Date.now() - this.lastRepair) / 1000 / 60 / 60 / 24;
   }
+
+  daysUntil(threshold: number): number {
+    return threshold - (Date.now() - this.lastRepair) / 1000 / 60 / 60 / 24;
+  }
 }
 
 const lastRepairComparator = (a: Building, b: Building): number => {
