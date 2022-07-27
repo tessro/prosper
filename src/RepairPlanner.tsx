@@ -5,8 +5,6 @@ import { RepairManager } from './RepairManager';
 
 const client = new FioClient();
 
-const msPerDay = 1000 * 60 * 60 * 24;
-
 export default function RepairPlanner() {
   const [repairManager, setRepairManager] = useState<RepairManager>(
     RepairManager.empty()
