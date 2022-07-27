@@ -118,7 +118,7 @@ function StorageLocation({
                 />
               );
             } else {
-              return <Other type={material.type} />;
+              return <Other key={material.id} type={material.type} />;
             }
           })}
         </tbody>
