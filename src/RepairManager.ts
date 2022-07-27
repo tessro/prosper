@@ -1,6 +1,6 @@
 import { BuildingRepository, UserSites } from './data';
 
-interface Building {
+interface BuildingInfo {
   id: string;
   ticker: string;
   planet: {
@@ -9,6 +9,29 @@ interface Building {
   };
   condition: number;
   lastRepair: number;
+}
+
+class Building {
+  readonly id: string;
+  readonly ticker: string;
+  readonly planet: {
+    name: string;
+    code: string;
+  };
+  readonly condition: number;
+  readonly lastRepair: number;
+
+  constructor(info: BuildingInfo) {
+    this.id = info.id;
+    this.ticker = info.ticker;
+    this.planet = info.planet;
+    this.condition = info.condition;
+    this.lastRepair = info.lastRepair;
+  }
+
+  get daysSinceRepair(): number {
+    return (Date.now() - this.lastRepair) / 1000 / 60 / 60 / 24;
+  }
 }
 
 const lastRepairComparator = (a: Building, b: Building): number => {
@@ -37,16 +60,18 @@ export class RepairManager {
         // Skip buildings that don't need repair
         if (['CM'].includes(ticker) || ticker.startsWith('HB')) continue;
 
-        buildings.push({
-          id: building.BuildingId,
-          ticker,
-          planet: {
-            name: site.PlanetName,
-            code: site.PlanetIdentifier,
-          },
-          condition: building.Condition,
-          lastRepair: building.BuildingLastRepair ?? building.BuildingCreated,
-        });
+        buildings.push(
+          new Building({
+            id: building.BuildingId,
+            ticker,
+            planet: {
+              name: site.PlanetName,
+              code: site.PlanetIdentifier,
+            },
+            condition: building.Condition,
+            lastRepair: building.BuildingLastRepair ?? building.BuildingCreated,
+          })
+        );
       }
     }
 

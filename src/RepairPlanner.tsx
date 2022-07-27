@@ -33,7 +33,8 @@ export default function RepairPlanner() {
               <td>{building.ticker}</td>
               <td>{building.planet.name ?? building.planet.code}</td>
               <td>
-                {Math.round((Date.now() - building.lastRepair) / msPerDay)} days
+                {Math.round(building.daysSinceRepair)}{' '}
+                {Math.round(building.daysSinceRepair) === 1 ? 'day' : 'days'}{' '}
                 ago
               </td>
             </tr>
