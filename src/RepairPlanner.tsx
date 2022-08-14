@@ -97,13 +97,15 @@ export default function RepairPlanner() {
                   %
                 </td>
                 <td>
-                  {building
-                    .repairCosts(building.daysSinceRepair)
-                    .map((cost) => (
-                      <li key={cost.ticker}>
-                        {cost.quantity} {cost.ticker}
-                      </li>
-                    ))}
+                  <ul>
+                    {building
+                      .repairCosts(building.daysSinceRepair)
+                      .map((cost) => (
+                        <li key={cost.ticker}>
+                          {cost.quantity} {cost.ticker}
+                        </li>
+                      ))}
+                  </ul>
                 </td>
                 <td>
                   {Math.round(
@@ -112,11 +114,13 @@ export default function RepairPlanner() {
                   %
                 </td>
                 <td>
-                  {building.repairCosts(repairThreshold).map((cost) => (
-                    <li key={cost.ticker}>
-                      {cost.quantity} {cost.ticker}
-                    </li>
-                  ))}
+                  <ul>
+                    {building.repairCosts(repairThreshold).map((cost) => (
+                      <li key={cost.ticker}>
+                        {cost.quantity} {cost.ticker}
+                      </li>
+                    ))}
+                  </ul>
                 </td>
               </tr>
             ))}
