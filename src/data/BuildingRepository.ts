@@ -42,7 +42,7 @@ export function loadBuildings(): Building[] {
         weight: bc.Weight,
         volume: bc.Volume,
         quantity: bc.Amount,
-      })),
+      })).sort((a, b) => a.ticker.localeCompare(b.ticker)),
     });
   }
 
