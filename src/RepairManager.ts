@@ -1,6 +1,7 @@
 import {
   BuildingRepository,
   BuildingCost,
+  MaterialRepository,
   PlanetRepository,
   UserSites,
 } from './data';
@@ -76,22 +77,85 @@ export class RepairManager {
 
   static async fromFio(sites: UserSites): Promise<RepairManager> {
     const buildingRepository = BuildingRepository.default();
+    const materialRepository = MaterialRepository.default();
     const planetRepository = PlanetRepository.default();
     const buildings: Building[] = [];
     for (const site of sites) {
       const planet = await planetRepository.findByCode(site.PlanetIdentifier);
-      console.log(planet);
+      if (!planet) {
+        throw new Error(`Couldn't find planet '${site.PlanetIdentifier}'!`);
+      }
+
       for (const building of site.Buildings) {
         const ticker = building.BuildingTicker;
+        const buildingType = buildingRepository.findByTicker(ticker)!;
 
         // Skip buildings that don't need repair
         if (['CM'].includes(ticker) || ticker.startsWith('HB')) continue;
+
+        const costs = [...buildingType.costs];
+
+        if (planet.isRocky) {
+          const mat = materialRepository.findByTicker('MCG');
+          costs.push({
+            ...mat!,
+            quantity: buildingType.area * 4,
+          });
+        } else if (planet.isGaseous) {
+          const mat = materialRepository.findByTicker('AEF');
+          costs.push({
+            ...mat!,
+            quantity: Math.ceil(buildingType.area / 3),
+          });
+        }
+
+        if (planet.isLowGravity) {
+          const mat = materialRepository.findByTicker('MGC');
+          costs.push({
+            ...mat!,
+            quantity: 1,
+          });
+        } else if (planet.isHighGravity) {
+          const mat = materialRepository.findByTicker('BL');
+          costs.push({
+            ...mat!,
+            quantity: 1,
+          });
+        }
+
+        if (planet.isLowPressure) {
+          const mat = materialRepository.findByTicker('SEA');
+          costs.push({
+            ...mat!,
+            quantity: buildingType.area,
+          });
+        } else if (planet.isHighPressure) {
+          const mat = materialRepository.findByTicker('HSE');
+          costs.push({
+            ...mat!,
+            quantity: 1,
+          });
+        }
+
+        if (planet.isLowTemperature) {
+          const mat = materialRepository.findByTicker('INS');
+          costs.push({
+            ...mat!,
+            quantity: buildingType.area * 10,
+          });
+        } else if (planet.isHighTemperature) {
+          const mat = materialRepository.findByTicker('TSH');
+          costs.push({
+            ...mat!,
+            quantity: 1,
+          });
+        }
 
         buildings.push(
           new Building({
             id: building.BuildingId,
             ticker,
-            costs: buildingRepository.findByTicker(ticker)?.costs ?? [],
+            costs,
             planet: {
               name: site.PlanetName,
               code: site.PlanetIdentifier,
