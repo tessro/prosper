@@ -8,6 +8,7 @@ const client = new FioClient();
 export default function RepairPlanner() {
   const [repairThreshold, setRepairThreshold] = useState<number>(89);
   const [showWithin, setShowWithin] = useState<number>(28);
+  const [sevenDayBug, setSevenDayBug] = useState<boolean>(false);
   const [repairManager, setRepairManager] = useState<RepairManager>(
     RepairManager.empty()
   );
@@ -23,6 +24,10 @@ export default function RepairPlanner() {
 
   const handleShowWithinChange = (e: any) => {
     setShowWithin(e.target.value);
+  };
+
+  const handleSevenDayBugChange = (e: any) => {
+    setSevenDayBug(e.target.checked);
   };
 
   return (
@@ -56,6 +61,17 @@ export default function RepairPlanner() {
               onChange={handleShowWithinChange}
             />
             <span>days</span>
+          </label>
+        </div>
+        <div className="form-control mb-4">
+          <label className="label cursor-pointer">
+            <input
+              type="checkbox"
+              className="checkbox"
+              defaultChecked={sevenDayBug}
+              onChange={handleSevenDayBugChange}
+            />
+            <span className="label-text ml-2">Enable seven day bug</span>
           </label>
         </div>
       </div>
@@ -92,14 +108,18 @@ export default function RepairPlanner() {
                 </td>
                 <td>
                   {Math.round(
-                    1000 * building.repairPercentage(building.daysSinceRepair)
+                    1000 *
+                      building.repairPercentage(
+                        building.daysSinceRepair,
+                        sevenDayBug
+                      )
                   ) / 10}
                   %
                 </td>
                 <td>
                   <ul>
                     {building
-                      .repairCosts(building.daysSinceRepair)
+                      .repairCosts(building.daysSinceRepair, sevenDayBug)
                       .map((cost) => (
                         <li key={cost.ticker}>
                           {cost.quantity} {cost.ticker}
@@ -109,17 +129,20 @@ export default function RepairPlanner() {
                 </td>
                 <td>
                   {Math.round(
-                    1000 * building.repairPercentage(repairThreshold)
+                    1000 *
+                      building.repairPercentage(repairThreshold, sevenDayBug)
                   ) / 10}
                   %
                 </td>
                 <td>
                   <ul>
-                    {building.repairCosts(repairThreshold).map((cost) => (
-                      <li key={cost.ticker}>
-                        {cost.quantity} {cost.ticker}
-                      </li>
-                    ))}
+                    {building
+                      .repairCosts(repairThreshold, sevenDayBug)
+                      .map((cost) => (
+                        <li key={cost.ticker}>
+                          {cost.quantity} {cost.ticker}
+                        </li>
+                      ))}
                   </ul>
                 </td>
               </tr>

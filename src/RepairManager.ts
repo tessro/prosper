@@ -22,7 +22,6 @@ class Building {
   };
   readonly condition: number;
   readonly lastRepair: number;
-  readonly sevenDayBug = false;
 
   constructor(info: BuildingInfo) {
     this.id = info.id;
@@ -41,13 +40,13 @@ class Building {
     return threshold - (Date.now() - this.lastRepair) / 1000 / 60 / 60 / 24;
   }
 
-  repairPercentage(age: number): number {
-    const effectiveAge = this.sevenDayBug ? age - 7 : age;
+  repairPercentage(age: number, sevenDayBug: boolean = false): number {
+    const effectiveAge = sevenDayBug ? age - 7 : age;
     return Math.min(1, Math.max(0, effectiveAge / 180));
   }
 
-  repairCosts(age: number): BuildingCost[] {
-    const pct = this.repairPercentage(age);
+  repairCosts(age: number, sevenDayBug: boolean = false): BuildingCost[] {
+    const pct = this.repairPercentage(age, sevenDayBug);
     return this.costs.map((cost) => ({
       ...cost,
       quantity: Math.ceil(cost.quantity * pct),
