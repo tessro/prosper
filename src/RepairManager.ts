@@ -1,8 +1,9 @@
-import { BuildingRepository, UserSites } from './data';
+import { BuildingRepository, BuildingCost, UserSites } from './data';
 
 interface BuildingInfo {
   id: string;
   ticker: string;
+  costs: BuildingCost[];
   planet: {
     name: string;
     code: string;
@@ -14,16 +15,19 @@ interface BuildingInfo {
 class Building {
   readonly id: string;
   readonly ticker: string;
+  readonly costs: BuildingCost[];
   readonly planet: {
     name: string;
     code: string;
   };
   readonly condition: number;
   readonly lastRepair: number;
+  readonly sevenDayBug = false;
 
   constructor(info: BuildingInfo) {
     this.id = info.id;
     this.ticker = info.ticker;
+    this.costs = info.costs;
     this.planet = info.planet;
     this.condition = info.condition;
     this.lastRepair = info.lastRepair;
@@ -35,6 +39,19 @@ class Building {
 
   daysUntil(threshold: number): number {
     return threshold - (Date.now() - this.lastRepair) / 1000 / 60 / 60 / 24;
+  }
+
+  repairPercentage(age: number): number {
+    const effectiveAge = this.sevenDayBug ? age - 7 : age;
+    return Math.min(1, Math.max(0, effectiveAge / 180));
+  }
+
+  repairCosts(age: number): BuildingCost[] {
+    const pct = this.repairPercentage(age);
+    return this.costs.map((cost) => ({
+      ...cost,
+      quantity: Math.ceil(cost.quantity * pct),
+    }));
   }
 }
 
@@ -49,13 +66,12 @@ const lastRepairComparator = (a: Building, b: Building): number => {
 };
 
 export class RepairManager {
-  private readonly buildingRepository = BuildingRepository.default();
-
   static empty(): RepairManager {
     return new RepairManager([]);
   }
 
   static fromFio(sites: UserSites): RepairManager {
+    const buildingRepository = BuildingRepository.default();
     const buildings: Building[] = [];
     for (const site of sites) {
       for (const building of site.Buildings) {
@@ -68,6 +84,7 @@ export class RepairManager {
           new Building({
             id: building.BuildingId,
             ticker,
+            costs: buildingRepository.findByTicker(ticker)?.costs ?? [],
             planet: {
               name: site.PlanetName,
               code: site.PlanetIdentifier,

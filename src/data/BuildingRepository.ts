@@ -1,7 +1,7 @@
 import buildings from './allbuildings.json';
 import { Workforce } from './workforce';
 
-interface BuildingCost {
+export interface BuildingCost {
   name: string;
   ticker: string;
   weight: number;

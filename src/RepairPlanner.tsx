@@ -66,13 +66,17 @@ export default function RepairPlanner() {
             <th>Planet</th>
             <th>Last Repair</th>
             <th>Next Repair</th>
+            <th>Repair % (now)</th>
+            <th>Repair Cost (now)</th>
+            <th>Repair % (at {repairThreshold}d)</th>
+            <th>Repair Cost (at {repairThreshold}d)</th>
           </tr>
         </thead>
         <tbody>
           {repairManager
             .needingRepairWithin(showWithin, repairThreshold)
             .map((building) => (
-              <tr>
+              <tr key={building.id}>
                 <td>{building.ticker}</td>
                 <td>{building.planet.name ?? building.planet.code}</td>
                 <td>
@@ -85,6 +89,34 @@ export default function RepairPlanner() {
                   {Math.round(building.daysUntil(repairThreshold)) === 1
                     ? 'day'
                     : 'days'}
+                </td>
+                <td>
+                  {Math.round(
+                    1000 * building.repairPercentage(building.daysSinceRepair)
+                  ) / 10}
+                  %
+                </td>
+                <td>
+                  {building
+                    .repairCosts(building.daysSinceRepair)
+                    .map((cost) => (
+                      <li key={cost.ticker}>
+                        {cost.quantity} {cost.ticker}
+                      </li>
+                    ))}
+                </td>
+                <td>
+                  {Math.round(
+                    1000 * building.repairPercentage(repairThreshold)
+                  ) / 10}
+                  %
+                </td>
+                <td>
+                  {building.repairCosts(repairThreshold).map((cost) => (
+                    <li key={cost.ticker}>
+                      {cost.quantity} {cost.ticker}
+                    </li>
+                  ))}
                 </td>
               </tr>
             ))}
