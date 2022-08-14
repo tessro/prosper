@@ -98,9 +98,7 @@ export class RepairManager {
     return new RepairManager(buildings);
   }
 
-  constructor(private readonly buildings: Building[]) {
-    console.log(buildings);
-  }
+  constructor(private readonly buildings: Building[]) {}
 
   all(): Building[] {
     return this.buildings.sort(lastRepairComparator);
