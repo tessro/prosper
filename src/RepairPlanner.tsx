@@ -15,7 +15,8 @@ export default function RepairPlanner() {
   useMemo(() => {
     client
       .getUserSites()
-      .then((sites) => setRepairManager(RepairManager.fromFio(sites)));
+      .then((sites) => RepairManager.fromFio(sites))
+      .then((mgr) => setRepairManager(mgr));
   }, []);
 
   const handleThresholdChange = (e: any) => {

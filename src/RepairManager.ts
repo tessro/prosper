@@ -1,4 +1,9 @@
-import { BuildingRepository, BuildingCost, UserSites } from './data';
+import {
+  BuildingRepository,
+  BuildingCost,
+  PlanetRepository,
+  UserSites,
+} from './data';
 
 interface BuildingInfo {
   id: string;
@@ -69,10 +74,13 @@ export class RepairManager {
     return new RepairManager([]);
   }
 
-  static fromFio(sites: UserSites): RepairManager {
+  static async fromFio(sites: UserSites): Promise<RepairManager> {
     const buildingRepository = BuildingRepository.default();
+    const planetRepository = PlanetRepository.default();
     const buildings: Building[] = [];
     for (const site of sites) {
+      const planet = await planetRepository.findByCode(site.PlanetIdentifier);
+      console.log(planet);
       for (const building of site.Buildings) {
         const ticker = building.BuildingTicker;
 
